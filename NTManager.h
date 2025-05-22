@@ -115,28 +115,6 @@ public slots:
         }
     }
 
-    QVector2D computeRobotVelocity(const QJsonObject &modules) const {
-        double sumX = 0.0;
-        double sumY = 0.0;
-
-        const QStringList keys = { "FL", "FR", "BL", "BR" };
-
-        for (const QString &key : keys) {
-            QJsonObject moduleData = modules.value(key).toObject();
-            double velocity = moduleData.value("velocity").toDouble();
-            double angle = moduleData.value("angle").toDouble();
-
-            double angleRad = angle * (M_PI / 180.0);
-            double vx = velocity * std::cos(angleRad);
-            double vy = velocity * std::sin(angleRad);
-
-            sumX += vx;
-            sumY += vy;
-        }
-
-        return QVector2D(sumX, sumY);
-    }
-
 private slots:
     void onReadyRead() {
         buffer.append(socket->readAll());

@@ -51,6 +51,7 @@ def extract_and_send():
         json.dump(data, file, indent=2)
 
     client_socket, addr = server_socket.accept()
+    client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     print(f"Client connected from {addr}")
 
