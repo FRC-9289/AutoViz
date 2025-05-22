@@ -59,11 +59,12 @@ ApplicationWindow {
                 width: 200
                 Layout.alignment: Qt.AlignTop
                 onClicked: {
-                    fileDialog.open()
-                    NTManager.startServer()
-                    NTManager.connectToNT()
-                    NTManager.startPolling()
-                    stackView.push(Qt.resolvedUrl("qrc:/QML/simscreen.qml"))
+                    const folderPath = LoadFileDialog.openFolderDialog();
+                    console.log("Path Selected: "+folderPath);
+                    //NTManager.startServer()
+                    //NTManager.connectToNT()
+                    //NTManager.startPolling()
+                    //stackView.push(Qt.resolvedUrl("qrc:/QML/simscreen.qml"))
                 }
 
             }

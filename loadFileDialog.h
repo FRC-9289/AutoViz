@@ -1,7 +1,18 @@
-#ifndef LOADFILEDIALOG_H
-#define LOADFILEDIALOG_H
+#include <QObject>
+#include <QString>
+#include <QFileDIalog>
 
-void loadFileDialog();
-void saveFilePath();
+class LoadFileDialog : public QObject {
+    Q_OBJECT
+public:
+    explicit LoadFileDialog(QObject* parent = nullptr) : QObject(parent){}
 
-#endif // LOADFILEDIALOG_H
+    Q_INVOKABLE QString openFolderDialog() {
+        QString dir = QFileDialog::getExistingDirectory(
+            nullptr,
+            "Select Folder",
+            QString()
+        );
+        return dir;
+    }
+};

@@ -3,11 +3,18 @@
 #include <QQuickStyle>
 #include <QIcon>
 #include <QtQml/QQmlContext>
+
+#include <QApplication>
+#include <QMainWindow>
+
 #include "NTManager.h"
+#include "loadFileDialog.h"
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
+
+
 
     QQuickStyle::setStyle("Material");
 
@@ -17,6 +24,10 @@ int main(int argc, char *argv[])
 
     NTManager ntmanager;
     engine.rootContext()->setContextProperty("NTManager", &ntmanager);
+
+    LoadFileDialog loadFileDialog;
+
+    engine.rootContext()->setContextProperty("LoadFileDialog", &loadFileDialog);
 
     engine.load(QUrl(QStringLiteral("qrc:/QML/main.qml")));
 

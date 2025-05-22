@@ -1,20 +1,25 @@
-#ifndef KINEMATICS_H
-#define KINEMATICS_H
+#include <Eigen/Dense>
 
-#include <QObject>
-#include <QJsonObject>
-#include <QVector2D>
-#include <QStringList>
-#include <QtMath>
-
-class kinematics : public QObject
-{
-    Q_OBJECT
-
+class kinematics {
 public:
-    explicit kinematics(QObject *parent = nullptr);
+    struct ModuleData {
+        double angle;
+        double velocity;
+        Eigen::Vector2d prevVelocity;
+    };
 
-    Q_INVOKABLE QVector2D computeRobotVelocity(const QJsonObject &modules) const;
+    struct Output {
+        Eigen::Vector2d linearVelocity;
+        double omega;
+        std::array<bool, 4> isSlipping;
+    };
+
+    kinematics(double width, double length, double mass, double frictionCoefficient, double deltaTime);
+
+    Output estimate(const std::array<ModuleData, 4>& modules); // <--- Declaration only
+
+private:
+    double W /*Width*/, L /*Length*/, m /*Mass*/, mu /* friction coef μ*/, dt /*change in time or elapsed time*/;
+    const double g /*g=9.81m/s^2*/;
+    std::array<Eigen::Vector2d, 4> modulePositions;
 };
-
-#endif // KINEMATICS_H

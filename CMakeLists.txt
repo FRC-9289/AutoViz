@@ -29,10 +29,13 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         robot.qml
         simscreen.qml
         resources.qrc
-        loadFileDialog.cpp
+
         loadFileDialog.h
         manageprojects.h manageprojects.cpp
-        kinematics.h kinematics.cpp
+        kinematics.h
+        failuredetection.h
+        kinematics.cpp
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET AutoViz APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -52,12 +55,18 @@ else()
     endif()
 endif()
 
+
+add_library(Eigen INTERFACE)
+target_include_directories(Eigen INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/external)
+
+
 target_link_libraries(AutoViz PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Network
     Qt${QT_VERSION_MAJOR}::Qml
     Qt${QT_VERSION_MAJOR}::QuickControls2
     Qt${QT_VERSION_MAJOR}::Core
+    Eigen
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
