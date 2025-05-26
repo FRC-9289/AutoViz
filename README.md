@@ -36,10 +36,13 @@ public void updateNetworkTable(NetworkTable table) {
     table.getEntry(name + "/angle").setDouble(currentState.angle.getDegrees());
     table.getEntry(name + "/velocity").setDouble(currentState.speedMetersPerSecond);
   }
+private double getCurrentAngleRadians() {
+    return Math.toRadians(turningMotor.getEncoder().getPosition());
+  }
 ```
 
-2. Add ```currentState = new SwerveModuleState(0.0, new Rotation2d(0.0));``` to ```SwerveModule``` contructor
-3. Update the ```currentState``` continuously by adding ```currentState = SwerveModuleState.optimize(desiredState, new Rotation2d(getCurrentAngleRadians()));``` to your ```setDesiredState method```
+2. Add ```currentState = new SwerveModuleState(0.0, new Rotation2d(0.0));``` to ```SwerveModule``` contructor, or a similar class that handles the logic of each Swerve Module
+3. Update the ```currentState``` continuously by adding ```currentState = SwerveModuleState.optimize(desiredState, new Rotation2d(getCurrentAngleRadians()));``` to your ```setDesiredState()``` method, or a similar method that updates SwerveModule states to their desired state.
 4. Report to NetworkTables through calling ```updateNetworkTable``` in your Drivetrain ```periodic()``` method
 
-Note that any non-mandatory named methods mentioned here is referenced to (NetworkTablesDrivetrain)[
+Note that any non-mandatory named methods mentioned here is referenced to [NetworkTablesDrivetrain](https://github.com/Aditya-2204/NetworkTables-for-Swerve), which is a demo repository for AutoViz.
