@@ -32,9 +32,13 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
         loadFileDialog.h
         manageprojects.h manageprojects.cpp
-        kinematics.h
+        Kinematics.h
         failuredetection.h
-        kinematics.cpp
+
+        NTManager.cpp
+        SwerveModule.h
+        robot.h
+
 
     )
 # Define target properties for Android with Qt 6 as:

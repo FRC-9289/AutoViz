@@ -1,25 +1,84 @@
-#include <Eigen/Dense>
+#ifndef KINEMATICS_H
+#define KINEMATICS_H
 
-class kinematics {
+#include <Eigen/Dense>
+#include <array>
+#include <cmath>
+#include <QMap>
+#include <QString>
+#include <QDebug>
+
+class Kinematics {
 public:
     struct ModuleData {
-        double angle;
-        double velocity;
-        Eigen::Vector2d prevVelocity;
+        double angle;    // Angle in radians (0 = forward, pi/2 = left)
+        double velocity; // Velocity in m/s
     };
 
     struct Output {
-        Eigen::Vector2d linearVelocity;
-        double omega;
-        std::array<bool, 4> isSlipping;
+        double v_x;    // Linear velocity in X (forward) direction
+        double v_y;    // Linear velocity in Y (left) direction
+        double omega;  // Angular velocity in rad/s
     };
 
-    kinematics(double width, double length, double mass, double frictionCoefficient, double deltaTime);
+    Kinematics(double width, double length) : width(width), length(length) {
+        // Define module positions relative to robot center
+        modulePositions["LB"] = Eigen::Vector2d(-width / 2.0, -length / 2.0);
+        modulePositions["LF"] = Eigen::Vector2d(-width / 2.0,  length / 2.0);
+        modulePositions["RB"] = Eigen::Vector2d( width / 2.0, -length / 2.0);
+        modulePositions["RF"] = Eigen::Vector2d( width / 2.0,  length / 2.0);
+    }
 
-    Output estimate(const std::array<ModuleData, 4>& modules); // <--- Declaration only
+    Output estimate(const std::array<ModuleData, 4>& modules) {
+        Eigen::Matrix<double, 8, 3> A;
+        Eigen::Matrix<double, 8, 1> b;
+
+        static const std::array<QString, 4> keys = {"LB", "LF", "RB", "RF"};
+
+        for (int i = 0; i < 4; ++i) {
+            const auto& module = modules[i];
+            const auto& pos = modulePositions[keys[i]];
+
+            // Decompose velocity vector
+            double vx = module.velocity * std::sin(-module.angle);
+            double vy = module.velocity * std::cos(-module.angle);
+
+            // Fill matrix A and vector b
+            A(2 * i, 0) = 1;
+            A(2 * i, 1) = 0;
+            A(2 * i, 2) = -pos.y();
+
+            A(2 * i + 1, 0) = 0;
+            A(2 * i + 1, 1) = 1;
+            A(2 * i + 1, 2) = pos.x();
+
+            b(2 * i) = vx;
+            b(2 * i + 1) = vy;
+        }
+
+        // Solve Ax = b using SVD
+        Eigen::Vector3d x = A.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(b);
+
+        return {x(0), x(1), x(2)};
+    }
+
+    // Optional debug utility
+    void printMatrix(const Eigen::MatrixXd& mat, const QString& name) const {
+        qDebug() << name << "=";
+        for (int i = 0; i < mat.rows(); ++i) {
+            QString row;
+            for (int j = 0; j < mat.cols(); ++j) {
+                row += QString::number(mat(i, j), 'f', 4) + " ";
+            }
+            qDebug().noquote() << row;
+        }
+        qDebug() << "";
+    }
 
 private:
-    double W /*Width*/, L /*Length*/, m /*Mass*/, mu /* friction coef μ*/, dt /*change in time or elapsed time*/;
-    const double g /*g=9.81m/s^2*/;
-    std::array<Eigen::Vector2d, 4> modulePositions;
+    double width;
+    double length;
+    QMap<QString, Eigen::Vector2d> modulePositions;
 };
+
+#endif // KINEMATICS_H

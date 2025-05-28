@@ -2,12 +2,16 @@ import QtQuick
 
 Rectangle {
     id: robotBody
-    width: 150
-    height: 150
+    width: 29.8125
+    height: 29.8125
     color: "#5A5A5A"
     border.color: "white"
     border.width: 3
     radius: 10
+
+
+
+    property real m: 29.8125
 
     // Front Left wheel
     Rectangle {

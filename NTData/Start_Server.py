@@ -34,13 +34,17 @@ def start_server():
         sys.exit(0)
 
     def start_gradlew():
-        global gradle_proc
-        # Check if gradlew is already running
-        gradle_proc = subprocess.Popen(
-            ["./gradlew", "simulateJava"],
-            cwd=project_dir,
-            preexec_fn=os.setsid  # Create new process group
-        )
-        gradle_proc.wait()
+        try:
+            global gradle_proc
+            # Check if gradlew is already running
+            gradle_proc = subprocess.Popen(
+                ["./gradlew", "simulateJava"],
+                cwd=project_dir,
+                preexec_fn=os.setsid  # Create new process group
+            )
+            gradle_proc.wait()
+        except:
+            print("Error starting gradlew. Make sure you are in the correct directory and gradlew is executable.")
+            print("Try clearing the cache with 'gradlew clean' in the directory and then running again.")
 
     return (cleanup, start_gradlew)

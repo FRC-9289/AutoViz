@@ -4,10 +4,10 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 ApplicationWindow {
-    width: 800
-    height: 600
+    width: 1000
+    height: 800
     visible: true
-    title: "Simulation Screen"
+    title: "Simulation Screen 🤖"
 
     Material.theme: Material.Dark
     Material.accent: "#39FF14"
@@ -17,7 +17,25 @@ ApplicationWindow {
     property real minZoom: 0.2
     property real maxZoom: 5.0
 
-    // Zoom container with scale transform
+    // Base width and spacing ratio
+    property real baseWidth: 477
+    property real baseSpacing: 24.22265625
+    property real robotBaseSize: baseSpacing  // size in px for 1m robot at base width
+
+    // Calculate spacing proportionally to current width
+    property real spacing: (width / baseWidth) * baseSpacing
+
+    Component.onCompleted: {
+        const robot = new Robot();
+        console.log(robot.getRobotOmega());
+    }
+
+    Connections {
+        onModuleDataReceived: {
+            console.log(obj)
+        }
+    }
+
     Item {
         id: zoomContainer
         anchors.fill: parent
@@ -35,17 +53,42 @@ ApplicationWindow {
             fillMode: Image.PreserveAspectFit
         }
 
+        Loader {
+            id: robot
+            source: "robot.qml"
+            anchors.centerIn: parent
+            onLoaded: {
+                updateRobotSize();
+            }
+        }
+
+        function updateRobotSize() {
+            if (robot.item) {
+                let scale = width / baseWidth;
+                robot.item.width = robotBaseSize * scale;
+                robot.item.height = robotBaseSize * scale;
+            }
+        }
+
+        // Redraw grid and resize robot when size changes
+        onWidthChanged: {
+            gridCanvas.requestPaint();
+            updateRobotSize();
+        }
+        onHeightChanged: {
+            gridCanvas.requestPaint();
+            updateRobotSize();
+        }
+
         Canvas {
-            id: latticeCanvas
+            id: gridCanvas
             anchors.fill: parent
 
             onPaint: {
                 let ctx = getContext("2d");
                 ctx.clearRect(0, 0, width, height);
 
-                const spacing = 95.2733485193/5; //Represent every 20cm
-
-                ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
                 ctx.lineWidth = 1;
 
                 for (let x = 0; x <= width; x += spacing) {
@@ -67,7 +110,6 @@ ApplicationWindow {
         }
     }
 
-    // Zoom with mouse wheel
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.AllButtons
@@ -77,7 +119,6 @@ ApplicationWindow {
         }
     }
 
-    // Optional zoom control buttons
     Row {
         spacing: 8
         anchors {
@@ -95,8 +136,12 @@ ApplicationWindow {
             onClicked: zoomFactor = Math.max(minZoom, zoomFactor - zoomStep)
         }
         Label {
-            text: Qt.formatNumber(zoomFactor, 1) + "x"
+            text: Math.round(zoomFactor*100)/100+ "x"
             color: "white"
         }
+    }
+
+    onClosing: {
+        NTManager.stopServer();
     }
 }

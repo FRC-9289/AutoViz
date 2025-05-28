@@ -2,6 +2,7 @@
 #define NTMANAGER_H
 
 #include "managejson.h"
+#include "Kinematics.h"
 
 #include <QProcess>
 #include <QDir>
@@ -18,6 +19,11 @@
 #include <QtGui/qvectornd.h>
 #include <cmath>
 
+#include <QFileSystemWatcher>
+
+#include "robot.h"
+#include "Kinematics.h"
+
 class NTManager : public QObject {
     Q_OBJECT
 
@@ -26,131 +32,57 @@ public:
         : QObject(parent),
         process(new QProcess(this)),
         socket(new QTcpSocket(this)),
-        pollTimer(new QTimer(this))
+        pollTimer(new QTimer(this)),
+        prevVelocities{{0.0,0.0,0.0,0.0}}
     {
         connect(socket, &QTcpSocket::readyRead, this, &NTManager::onReadyRead);
-        connect(pollTimer, &QTimer::timeout, this, &NTManager::pollNetworkTables);
+        if(!robot){
+            robot = new Robot();
+        }
+
+        if(!kinematics){
+            kinematics = new Kinematics(1,1); //Dummy Values
+        }
+        watcher.addPath(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/../../../../../NTData/config.json"));
     }
 
     ~NTManager() {
         stopServer();
+        delete process;
+        delete socket;
+        delete pollTimer;
+        delete kinematics;
+        delete robot;
     }
 
 signals:
     void moduleDataReceived(QJsonObject data);
 
 public slots:
-    void startServer() {
-        if (process->state() == QProcess::Running) {
-            process->terminate();
-            process->waitForFinished();
-        }
+    void startServer();
 
-        QString appDirPath = QCoreApplication::applicationDirPath();
-        QDir dir(appDirPath);
-        dir.cd("../../../../../NTData");
+    void connectToNT() {/* Use a single shot timer instead of blocking sleep*/ connect(&watcher, &QFileSystemWatcher::fileChanged, this, &NTManager::connectToNTActual);}
 
-        QString finalDir = dir.absolutePath();
-        QString scriptPath = dir.absoluteFilePath("main.py");
+    void connectToNTActual();
 
-        qInfo() << "Final working directory:" << finalDir;
-        qInfo() << "Script full path:" << scriptPath;
-        qInfo() << "Script exists:" << QFile::exists(scriptPath);
+    void startPolling(int intervalMs = 1) {pollTimer->start(intervalMs);}
 
-        process->setWorkingDirectory(finalDir);
-        process->setProcessChannelMode(QProcess::MergedChannels);
+    void stopPolling() {pollTimer->stop();}
 
-        process->start("python3", QStringList() << scriptPath);
+    void stopServer();
 
-        if (!process->waitForStarted()) {
-            qWarning() << "Failed to start process:" << process->errorString();
-        }
-    }
 
-    void connectToNT() {
-        // Use a single shot timer instead of blocking sleep
-        QTimer::singleShot(7000, this, &NTManager::connectToNTActual);
-    }
+    void onReadyRead();
 
-    void connectToNTActual() {
-        QString configPath = QDir::cleanPath(QCoreApplication::applicationDirPath() + "/../../../../../NTData/config.json");
-
-        if (!QFile::exists(configPath)) {
-            qWarning() << "Config file not found at:" << configPath;
-            return;
-        }
-
-        QJsonObject config = readJson(configPath);
-        int port = config.value("free-port").toInt();
-
-        qInfo() << "Connecting to localhost @ port:" << port;
-        socket->connectToHost(QHostAddress::LocalHost, port);
-
-        if (socket->waitForConnected(3000)) {
-            qInfo() << "Connected!";
-        } else {
-            qWarning() << "Unable to connect to NetworkTables TCP socket";
-        }
-    }
-
-    void startPolling(int intervalMs = 1) {
-        pollTimer->start(intervalMs);
-    }
-
-    void stopPolling() {
-        pollTimer->stop();
-    }
-
-    void stopServer() {
-        stopPolling();
-
-        if (process->state() == QProcess::Running) {
-            qInfo() << "Terminating Python process.";
-            process->terminate();
-            process->waitForFinished(3000);
-        }
-
-        if (socket->state() == QAbstractSocket::ConnectedState) {
-            socket->disconnectFromHost();
-        }
-    }
-
-private slots:
-    void onReadyRead() {
-        buffer.append(socket->readAll());
-
-        int newlineIndex;
-        // Process all complete messages
-        while ((newlineIndex = buffer.indexOf('\n')) != -1) {
-            QByteArray message = buffer.left(newlineIndex);
-            buffer.remove(0, newlineIndex + 1); // Remove message + newline
-
-            QJsonParseError parseError;
-            QJsonDocument doc = QJsonDocument::fromJson(message, &parseError);
-
-            if (parseError.error != QJsonParseError::NoError) {
-                qWarning() << "JSON parse error:" << parseError.errorString();
-                continue;
-            }
-
-            if (doc.isObject()) {
-                QJsonObject obj = doc.object();
-                qDebug() << "Received JSON:" << obj;
-                emit moduleDataReceived(obj);
-            }
-        }
-    }
-
-    void pollNetworkTables() {
-        // This slot can be used to do periodic polling if needed
-        // For now, you can leave it empty or implement if needed
-    }
-
-private:
+public:
     QProcess *process;
     QTcpSocket *socket;
     QByteArray buffer;
     QTimer *pollTimer;
+    QFileSystemWatcher watcher;
+    Kinematics *kinematics = nullptr;
+    std::array<float, 4> prevVelocities;
+    Robot *robot = nullptr;
 };
 
 #endif // NTMANAGER_H

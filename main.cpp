@@ -9,6 +9,9 @@
 
 #include "NTManager.h"
 #include "loadFileDialog.h"
+#include "Kinematics.h"
+#include "robot.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -26,8 +29,10 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("NTManager", &ntmanager);
 
     LoadFileDialog loadFileDialog;
-
     engine.rootContext()->setContextProperty("LoadFileDialog", &loadFileDialog);
+
+    Robot robot;
+    engine.rootContext()->setContextProperty("Robot", &robot);
 
     engine.load(QUrl(QStringLiteral("qrc:/QML/main.qml")));
 

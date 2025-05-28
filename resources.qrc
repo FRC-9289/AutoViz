@@ -3,6 +3,7 @@
         <file>robot.qml</file>
         <file>simscreen.qml</file>
         <file>main.qml</file>
+        <file>robotsettings.qml</file>
     </qresource>
     <qresource prefix="/Logo">
         <file>app-logo.png</file>
@@ -10,4 +11,5 @@
     <qresource prefix="/SimScreen">
         <file>2025 REEFSCAPE Transparent Background.png</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

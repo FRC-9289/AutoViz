@@ -14,26 +14,6 @@ ApplicationWindow {
     Material.theme: Material.Dark
     Material.accent: "#39FF14"
 
-    /*Connections {
-        target: NTManager
-        function onModuleDataReceived(data) {
-            console.log("JSON Received:", JSON.stringify(data))
-        }
-    }
-    */
-
-    /*FolderDialog {
-        id: fileDialog
-        title: "Select a Folder"
-        onAccepted: {
-            console.log("Selected folder: " + fileDialog.currentFolder) // ✅ correct
-        }
-        onRejected: {
-            console.log("Dialog canceled")
-        }
-    }
-    */
-
     StackView {
         id: stackView
         anchors.fill: parent
@@ -59,12 +39,12 @@ ApplicationWindow {
                 width: 200
                 Layout.alignment: Qt.AlignTop
                 onClicked: {
-                    const folderPath = LoadFileDialog.openFolderDialog();
-                    console.log("Path Selected: "+folderPath);
-                    //NTManager.startServer()
-                    //NTManager.connectToNT()
-                    //NTManager.startPolling()
-                    //stackView.push(Qt.resolvedUrl("qrc:/QML/simscreen.qml"))
+                    //const folderPath = LoadFileDialog.openFolderDialog();
+                    //console.log("Path Selected: "+folderPath);
+                    NTManager.startServer()
+                    NTManager.connectToNT()
+                    NTManager.startPolling()
+                    stackView.push(Qt.resolvedUrl("qrc:/QML/simscreen.qml"))
                 }
 
             }
@@ -94,15 +74,32 @@ ApplicationWindow {
                 }
 
                 delegate: Button {
-                    text: "Project " + (index + 1)
-                    font.family: "Poppins"
                     font.pointSize: 14
                     width: projectGrid.cellWidth-20
                     height: projectGrid.cellHeight-20
 
+                    Label {
+                        text: "Project " + (index + 1)
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.top: parent.top
+                        anchors.topMargin: 20  // optional: spacing from top
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+
                     background: Rectangle {
-                        color: "#1D2545"
+                        color: mouseArea.containsMouse ? "#202938" : "#1D2545"
                         radius: 20
+                    }
+
+                    MouseArea {
+                        id: mouseArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+
+                        onClicked: {
+                            console.log("Button clicked!")
+                        }
                     }
                 }
             }
