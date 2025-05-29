@@ -12,18 +12,17 @@ public:
     explicit Robot(QObject *parent = nullptr)
         : QObject(parent),
         omega(0.0),
-        velocity(Eigen::Vector2d::Zero()),
         isSlipping{{false, false, false, false}}
     {
 
     }
 
-    Eigen::Vector2d getRobotVelocity() const {
-        return velocity;
+    void setRobotXVelocity(const double &vel) {
+        velocityX = vel;
     }
 
-    void setRobotVelocity(const Eigen::Vector2d &vel) {
-        velocity = vel;
+    void setRobotYVelocity(const double &vel) {
+        velocityY = vel;
     }
 
     double getRobotOmega() const {
@@ -42,17 +41,24 @@ public:
         isSlipping = status;
     }
 
-    double normalizeAngle180(double angle) {
-        angle = std::fmod(angle + 180.0, 360.0);
+    double normalizeAnglePI(double angle) {
+        angle = std::fmod(angle + M_PI, 2*M_PI);
         if (angle < 0)
-            angle += 360.0;
-        return angle - 180.0;
+            angle += 2*M_PI;
+        return angle - M_PI;
     }
 
 
     void updateHeading(double dt) {
-        heading += dt * omega;
-        heading = normalizeAngle180(heading);
+        heading += dt * omega*10;
+        heading = normalizeAnglePI(heading);
+    }
+
+    Eigen::Vector2d getVectorRelComponent(double vel, double rad) {
+        auto xComponent = vel*std::cos(rad);
+        auto yComponent = vel*std::sin(rad);
+
+        return Eigen::Vector2d(xComponent, yComponent);
     }
 
 
@@ -61,11 +67,38 @@ public:
         return heading;
     }
 
+    double getRobotXMovement(){
+        Eigen::Vector2d resultVelX = getVectorRelComponent(velocityX, heading);
+        Eigen::Vector2d resultVelY = getVectorRelComponent(velocityY, heading-M_PI/2);
+
+        return resultVelX.x()+resultVelY.x(); //Total X movement
+    }
+
+    double getRobotYMovement(){
+        Eigen::Vector2d resultVelX = getVectorRelComponent(velocityX, heading);
+        Eigen::Vector2d resultVelY = getVectorRelComponent(velocityY, heading-M_PI/2);
+
+        return resultVelX.y()+resultVelY.y(); //Total X movement
+    }
+
+    double getRobotVelocity(){
+        return std::hypot(velocityX, velocityY);
+    }
+
+    double getRobotXVelocity(){
+        return velocityX;
+    }
+
+    double getRobotYVelocity(){
+        return velocityY;
+    }
+
 private:
     double omega;
-    Eigen::Vector2d velocity;
+    double velocityX;
+    double velocityY;
     std::array<bool, 4> isSlipping;
-    double heading=179.2;
+    double heading=179.2*M_PI/180;
     double coef=1.25;
 
 };

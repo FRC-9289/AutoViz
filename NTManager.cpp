@@ -50,6 +50,7 @@ void NTManager::startServer() {
 }
 
 void NTManager::onReadyRead() {
+    QTime startTime = QTime::currentTime();
     buffer.append(socket->readAll());
 
     int newlineIndex;
@@ -85,7 +86,6 @@ void NTManager::onReadyRead() {
             QJsonObject modObj = obj[moduleName].toObject();
             double angle = modObj["angle"].toDouble();
             double velocity = modObj["velocity"].toDouble();
-            qInfo() << "Module " << moduleName << "Angle: " << angle << "| Velocity: " << velocity;
             modules[i++] = {qDegreesToRadians(angle), velocity};
         }
 
@@ -94,16 +94,20 @@ void NTManager::onReadyRead() {
         // Logging for debugging
         qInfo() << "Omega (deg/s): " << qRadiansToDegrees(result.omega);
 
-        // Store angular velocity in radians internally
-        robot->setRobotOmega(qRadiansToDegrees(result.omega));
-        robot->setRobotVelocity(Eigen::Vector2d(result.v_x, result.v_y));
+        robot->setRobotOmega(result.omega);
+        robot->setRobotXVelocity(result.v_x);
+        robot->setRobotYVelocity(result.v_y);
 
-        // Update heading using omega in radians and dt = 0.02 s
-        robot->updateHeading(0.02);
+        // Update heading using omega in radians and dt = 0.004 s
+        robot->updateHeading(0.004);
 
         emit moduleDataReceived(obj);
 
-        qInfo() << "Heading: " << robot->getHeading();
+        qInfo() << "Heading: " << qRadiansToDegrees(robot->getHeading());
+        qInfo() << QTime::currentTime().msec();
+
+        qInfo() << "Move X: " << robot->getRobotXMovement();
+        qInfo() << "Move Y: " << robot->getRobotYMovement();
     }
 }
 
