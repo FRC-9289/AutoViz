@@ -7,10 +7,11 @@
 #include <QApplication>
 #include <QMainWindow>
 
-#include "NTManager.h"
+#include "autovizdatamanager.h"
 #include "loadFileDialog.h"
 #include "Kinematics.h"
 #include "robot.h"
+#include "appcontroller.h"
 
 
 int main(int argc, char *argv[])
@@ -25,8 +26,8 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    NTManager ntmanager;
-    engine.rootContext()->setContextProperty("NTManager", &ntmanager);
+    AppController controller;
+    engine.rootContext()->setContextProperty("controller", &controller);
 
     LoadFileDialog loadFileDialog;
     engine.rootContext()->setContextProperty("LoadFileDialog", &loadFileDialog);

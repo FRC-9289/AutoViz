@@ -23,17 +23,9 @@ ApplicationWindow {
     property real robotBaseSize: baseSpacing  // size in px for 1m robot at base width
 
     // Calculate spacing proportionally to current width
-    property real spacing: (width / baseWidth) * baseSpacing
+    property real spacing: (width / baseWidth) * baseSpacing/2.0
 
     Component.onCompleted: {
-        const robot = new Robot();
-        console.log(robot.getRobotOmega());
-    }
-
-    Connections {
-        onModuleDataReceived: {
-            console.log(obj)
-        }
     }
 
     Item {
@@ -142,6 +134,6 @@ ApplicationWindow {
     }
 
     onClosing: {
-        NTManager.stopServer();
+        controller.stopServer();
     }
 }

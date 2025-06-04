@@ -41,9 +41,7 @@ ApplicationWindow {
                 onClicked: {
                     //const folderPath = LoadFileDialog.openFolderDialog();
                     //console.log("Path Selected: "+folderPath);
-                    NTManager.startServer()
-                    NTManager.connectToNT()
-                    NTManager.startPolling()
+                    controller.startNewProject("New Project")
                     stackView.push(Qt.resolvedUrl("qrc:/QML/simscreen.qml"))
                 }
 
@@ -107,7 +105,7 @@ ApplicationWindow {
     }
 
     onClosing: {
-        NTManager.stopServer();
+        controller.stopServer();
         Qt.quit();
     }
 }

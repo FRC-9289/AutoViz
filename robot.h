@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 #include <array>
 #include <QObject>
+#include <QtMath>
 
 class Robot : public QObject {
     Q_OBJECT
@@ -11,96 +12,81 @@ class Robot : public QObject {
 public:
     explicit Robot(QObject *parent = nullptr)
         : QObject(parent),
+        velocityX(0.0),
+        velocityY(0.0),
         omega(0.0),
-        isSlipping{{false, false, false, false}}
-    {
+        isSlipping{{false, false, false, false}},
+        heading(qDegreesToRadians(-122.2)),
+        x(4.51),
+        y(6.58),
+        time(0.000000)
+    {}
 
-    }
-
-    void setRobotXVelocity(const double &vel) {
-        velocityX = vel;
-    }
-
-    void setRobotYVelocity(const double &vel) {
-        velocityY = vel;
-    }
-
-    double getRobotOmega() const {
-        return omega;
-    }
-
-    void setRobotOmega(double om) {
-        omega = om;
-    }
-
-    std::array<bool, 4> getSlippingStatus() const {
-        return isSlipping;
-    }
-
-    void setSlippingStatus(const std::array<bool, 4> &status) {
-        isSlipping = status;
-    }
-
-    double normalizeAnglePI(double angle) {
-        angle = std::fmod(angle + M_PI, 2*M_PI);
-        if (angle < 0)
-            angle += 2*M_PI;
-        return angle - M_PI;
-    }
-
-
-    void updateHeading(double dt) {
-        heading += dt * omega*10;
+    void updateHeading(double angularVelocity, double dt) {
+        heading += angularVelocity * dt*0.7;
         heading = normalizeAnglePI(heading);
     }
 
-    Eigen::Vector2d getVectorRelComponent(double vel, double rad) {
-        auto xComponent = vel*std::cos(rad);
-        auto yComponent = vel*std::sin(rad);
+    void updatePosition(double dt) {
+        Eigen::Rotation2Dd rot(heading);
+        Eigen::Vector2d v_robot(velocityX, velocityY);
+        Eigen::Vector2d v_field = rot * v_robot;
 
-        return Eigen::Vector2d(xComponent, yComponent);
+        x += v_field.x() * dt;
+        y += v_field.y() * dt;
     }
 
-
-
-    double getHeading() {
-        return heading;
+    void updateTime(double dt) {
+        time += dt;
     }
 
-    double getRobotXMovement(){
-        Eigen::Vector2d resultVelX = getVectorRelComponent(velocityX, heading);
-        Eigen::Vector2d resultVelY = getVectorRelComponent(velocityY, heading-M_PI/2);
-
-        return resultVelX.x()+resultVelY.x(); //Total X movement
+    // Set current velocity (robot-relative)
+    void setVelocity(double vx, double vy, double w) {
+        velocityX = vx;
+        velocityY = vy;
+        omega = w;
     }
 
-    double getRobotYMovement(){
-        Eigen::Vector2d resultVelX = getVectorRelComponent(velocityX, heading);
-        Eigen::Vector2d resultVelY = getVectorRelComponent(velocityY, heading-M_PI/2);
+    // Getters
+    double getHeading() const { return heading; }
+    double getX() const { return x; }
+    double getY() const { return y; }
+    double getTime() const { return time; }
+    double getVelocityX() const { return velocityX; }
+    double getVelocityY() const { return velocityY; }
+    double getOmega() const { return omega; }
+    bool isModuleSlipping(int index) const { return isSlipping[index]; }
 
-        return resultVelX.y()+resultVelY.y(); //Total X movement
+    // Set slipping state for a module
+    void setModuleSlipping(int index, bool slipping) {
+        if (index >= 0 && index < 4) {
+            isSlipping[index] = slipping;
+        }
     }
 
-    double getRobotVelocity(){
-        return std::hypot(velocityX, velocityY);
-    }
-
-    double getRobotXVelocity(){
-        return velocityX;
-    }
-
-    double getRobotYVelocity(){
-        return velocityY;
+    void setVelocityRelative(){
+        Eigen::Rotation2D<double> rot(M_PI/2 - heading);
+        Eigen::Vector2d v(velocityX, velocityY);
+        rot*v; //Work on
     }
 
 private:
-    double omega;
-    double velocityX;
-    double velocityY;
-    std::array<bool, 4> isSlipping;
-    double heading=179.2*M_PI/180;
-    double coef=1.25;
+    double velocityX;  // Robot-relative velocity X (forward)
+    double velocityY;  // Robot-relative velocity Y (left)
+    double omega;      // Angular velocity (rad/s)
 
+    std::array<bool, 4> isSlipping;
+
+    double heading;    // Robot heading (radians), normalized to [-π, π]
+    double x, y;       // Robot position on field (meters)
+    double time;       // Simulation time (seconds)
+
+    // Normalize angle to [-π, π]
+    double normalizeAnglePI(double angle) const {
+        while (angle > M_PI) angle -= 2.0 * M_PI;
+        while (angle <= -M_PI) angle += 2.0 * M_PI;
+        return angle;
+    }
 };
 
 #endif // ROBOT_H

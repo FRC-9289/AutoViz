@@ -56,23 +56,16 @@ public:
             b(2 * i + 1) = vy;
         }
 
-        // Solve Ax = b using SVD
-        Eigen::Vector3d x = A.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(b);
+        // Solve Ax = b using QR decomposition (Householder)
+        Eigen::Vector3d x = A.householderQr().solve(b);
+
+        double db = 1e-15; //Deadband
+
+        if (std::abs(x(2)) < db) x(2) = 0;
+        if (std::abs(x(1)) < db) x(1) = 0;
+        if (std::abs(x(0)) < db) x(0) = 0;
 
         return {x(0), x(1), x(2)};
-    }
-
-    // Optional debug utility
-    void printMatrix(const Eigen::MatrixXd& mat, const QString& name) const {
-        qDebug() << name << "=";
-        for (int i = 0; i < mat.rows(); ++i) {
-            QString row;
-            for (int j = 0; j < mat.cols(); ++j) {
-                row += QString::number(mat(i, j), 'f', 4) + " ";
-            }
-            qDebug().noquote() << row;
-        }
-        qDebug() << "";
     }
 
 private:

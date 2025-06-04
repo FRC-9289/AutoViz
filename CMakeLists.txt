@@ -24,7 +24,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         managejson.h managejson.cpp
 
-        NTManager.h
+
         main.qml
         robot.qml
         simscreen.qml
@@ -35,9 +35,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Kinematics.h
         failuredetection.h
 
-        NTManager.cpp
+
         SwerveModule.h
         robot.h
+        csvwriter.h csvwriter.cpp
+        autovizdatamanager.h autovizdatamanager.cpp
+        appcontroller.h appcontroller.cpp
 
 
     )
@@ -60,9 +63,9 @@ else()
 endif()
 
 
+# Eigen header-only library
 add_library(Eigen INTERFACE)
 target_include_directories(Eigen INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/external)
-
 
 target_link_libraries(AutoViz PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
