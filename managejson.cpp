@@ -32,32 +32,58 @@ QJsonObject readJson(const QString &filePath) {
 
 bool editJsonFile(const QString& filePath, const QString& key, const QJsonValue& newValue) {
     QFile file(filePath);
-    if (!file.open(QIODevice::ReadWrite | QIODevice::Text)) {
-        return false;
-    }
 
-    QByteArray fileData = file.readAll();
-    QJsonParseError jsonError;
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(fileData, &jsonError);
+    QJsonObject jsonObj;
 
-    if (jsonError.error != QJsonParseError::NoError) {
+    // If the file exists, read it
+    if (file.exists()) {
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            qWarning() << "Could not open file for reading:" << filePath;
+            return false;
+        }
+
+        QByteArray fileData = file.readAll();
         file.close();
-        return false;
+
+        if (!fileData.isEmpty()) {
+            QJsonParseError jsonError;
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(fileData, &jsonError);
+
+            if (jsonError.error != QJsonParseError::NoError) {
+                qWarning() << "JSON parse error:" << jsonError.errorString();
+                return false;
+            }
+
+            if (jsonDoc.isObject()) {
+                jsonObj = jsonDoc.object();
+            } else {
+                qWarning() << "File does not contain a JSON object.";
+                return false;
+            }
+        } else {
+            // Empty file, treat as new empty object
+            jsonObj = QJsonObject();
+        }
+    } else {
+        // File does not exist — create new empty object
+        jsonObj = QJsonObject();
     }
 
-    if (!jsonDoc.isObject()) {
-        file.close();
-        return false;
-    }
-
-    QJsonObject jsonObj = jsonDoc.object();
+    // Set the key
     jsonObj[key] = newValue;
-    jsonDoc.setObject(jsonObj);
 
-    file.seek(0);
-    file.write(jsonDoc.toJson());
-    file.resize(file.pos()); // Truncate any remaining data
+    // Now write the file back
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        qWarning() << "Could not open file for writing:" << filePath;
+        return false;
+    }
+
+    QJsonDocument newDoc(jsonObj);
+    file.write(newDoc.toJson(QJsonDocument::Indented)); // Optional: pretty print
     file.close();
+
     return true;
 }
+
+
 

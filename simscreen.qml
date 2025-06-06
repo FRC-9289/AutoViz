@@ -38,6 +38,11 @@ ApplicationWindow {
             origin.y: zoomContainer.height / 2
         }
 
+        Rectangle {
+            color: "#121212"
+            anchors.fill: parent
+        }
+
         Image {
             id: baseImage
             anchors.fill: parent
@@ -51,6 +56,12 @@ ApplicationWindow {
             anchors.centerIn: parent
             onLoaded: {
                 updateRobotSize();
+            }
+        }
+
+        function setRobotRotation(degrees) {
+            if (robot.item) {
+                robot.item.rotation = degrees
             }
         }
 
@@ -105,9 +116,23 @@ ApplicationWindow {
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.AllButtons
-        onWheel: (wheel) => {
-            const delta = wheel.angleDelta.y > 0 ? zoomStep : -zoomStep;
-            zoomFactor = Math.max(minZoom, Math.min(maxZoom, zoomFactor + delta));
+        PinchArea {
+            anchors.fill: parent
+            pinch.target: zoomContainer
+            pinch.minimumScale: minZoom
+            pinch.maximumScale: maxZoom
+            pinch.dragAxis: Pinch.NoDrag  // disables panning
+
+            onPinchUpdated: {
+                const sensitivity = 0.1;  // Lower = slower zoom, try 0.1 - 0.3
+                const zoomDelta = 1 + (pinch.scale - 1) * sensitivity;
+
+                zoomFactor = Math.max(minZoom, Math.min(maxZoom, zoomFactor * zoomDelta));
+            }
+
+            onPinchFinished: {
+                pinch.scale = 1  // reset pinch scale for next gesture
+            }
         }
     }
 

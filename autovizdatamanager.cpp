@@ -132,6 +132,13 @@ void AutoVizDataManager::parseAndWriteToCSV(const QByteArray& jsonData) {
     }
 
     QJsonObject obj = doc.object();
+
+    qDebug() << obj["Robot State"].toString();
+
+    if(obj["Robot State"].toString()=="Disabled"){
+        AutoVizDataManager::stopServer();
+    }
+
     QStringList keys = { "LF", "RF", "LB", "RB" };
 
     if (!csvHeaderWritten) {
@@ -157,6 +164,16 @@ void AutoVizDataManager::stopServer() {
         qDebug() << "Stopping Python server...";
         pythonProcess->terminate();
         pythonProcess->waitForFinished(3000);
+    }
+
+    if (socket && socket->state() == QAbstractSocket::ConnectedState) {
+        qDebug() << "Closing TCP socket...";
+        socket->disconnectFromHost();
+    }
+
+    if (csvFile.isOpen()) {
+        qDebug() << "Closing CSV file.";
+        csvFile.close();
     }
 }
 

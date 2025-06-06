@@ -41,8 +41,7 @@ ApplicationWindow {
                 onClicked: {
                     //const folderPath = LoadFileDialog.openFolderDialog();
                     //console.log("Path Selected: "+folderPath);
-                    controller.startNewProject("New Project")
-                    stackView.push(Qt.resolvedUrl("qrc:/QML/simscreen.qml"))
+                    stackView.push(Qt.resolvedUrl("qrc:/QML/setupscreen.qml"))
                 }
 
             }
@@ -85,7 +84,7 @@ ApplicationWindow {
                     }
 
                     background: Rectangle {
-                        color: mouseArea.containsMouse ? "#202938" : "#1D2545"
+                        color: mouseArea.containsMouse ? "#357ABD" : "#4A90E2"
                         radius: 20
                     }
 

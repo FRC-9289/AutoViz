@@ -15,8 +15,8 @@ Rectangle {
 
     // Front Left wheel
     Rectangle {
-        width: 8
-        height: 30
+        width: parent.width*0.27
+        height: parent.height*0.4
         color: "black"
         anchors.left: parent.left
         anchors.top: parent.top
@@ -27,8 +27,8 @@ Rectangle {
 
     // Front Right wheel
     Rectangle {
-        width: 8
-        height: 30
+        width: parent.width*0.27
+        height: parent.height*0.4
         color: "black"
         anchors.right: parent.right
         anchors.top: parent.top
@@ -39,8 +39,8 @@ Rectangle {
 
     // Back Left wheel
     Rectangle {
-        width: 8
-        height: 30
+        width: parent.width*0.27
+        height: parent.height*0.4
         color: "black"
         anchors.left: parent.left
         anchors.bottom: parent.bottom
@@ -51,8 +51,8 @@ Rectangle {
 
     // Back Right wheel
     Rectangle {
-        width: 8
-        height: 30
+        width: parent.width*0.27
+        height: parent.height*0.4
         color: "black"
         anchors.right: parent.right
         anchors.bottom: parent.bottom

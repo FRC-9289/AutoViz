@@ -4,6 +4,7 @@
         <file>simscreen.qml</file>
         <file>main.qml</file>
         <file>robotsettings.qml</file>
+        <file>setupscreen.qml</file>
     </qresource>
     <qresource prefix="/Logo">
         <file>app-logo.png</file>
