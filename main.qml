@@ -17,6 +17,7 @@ ApplicationWindow {
     StackView {
         id: stackView
         anchors.fill: parent
+        initialItem: window
     }
 
     RowLayout {
@@ -61,25 +62,34 @@ ApplicationWindow {
                 id: projectGrid
                 anchors.fill: parent
                 anchors.margins: 20
-                model: 12
+
+                property var projectNames: []
+
+                Component.onCompleted: {
+                    projectNames = controller.getProjects();
+                }
+
+                model: projectNames
                 cellWidth: 325
                 cellHeight: 220
                 clip: true
-                interactive: true  // Enables scrolling
+                interactive: true
+
                 ScrollBar.vertical: ScrollBar {
-                    policy: ScrollBar.AlwaysOn  // ← Shows the vertical scrollbar
+                    policy: ScrollBar.AlwaysOn
                 }
 
                 delegate: Button {
                     font.pointSize: 14
-                    width: projectGrid.cellWidth-20
-                    height: projectGrid.cellHeight-20
+                    width: projectGrid.cellWidth - 20
+                    height: projectGrid.cellHeight - 20
 
                     Label {
-                        text: "Project " + (index + 1)
+                        id: projectLabel
+                        text: modelData  // ← this is the correct way!
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.top: parent.top
-                        anchors.topMargin: 20  // optional: spacing from top
+                        anchors.topMargin: 20
                         horizontalAlignment: Text.AlignHCenter
                     }
 
@@ -95,7 +105,11 @@ ApplicationWindow {
                         cursorShape: Qt.PointingHandCursor
 
                         onClicked: {
-                            console.log("Button clicked!")
+                            stackView.push("qrc:/QML/simscreen.qml", {
+                                simulationRecording: false,
+                                projectName: modelData
+                            });
+                            console.log("Project Name: "+modelData)
                         }
                     }
                 }

@@ -2,6 +2,8 @@ import QtQuick.Window 2.15
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtQuick.Dialogs
+
 
 ApplicationWindow {
     width: 1000
@@ -25,10 +27,32 @@ ApplicationWindow {
     // Calculate spacing proportionally to current width
     property real spacing: (width / baseWidth) * baseSpacing/2.0
 
+    property bool simulationRecording: false;
+    property string projectName: "";
+
     Component.onCompleted: {
+        reminder.open()
+        //if(simulationRecording){
+        //    stopRecording.visible = true;
+        //}
+        console.log(projectName) //Not working
+    }
+
+    Button {
+        id: stopRecording
+        text: "Stop Recording"
+        onClicked: {
+            controller.stopServer();
+            visible: false;
+        }
+        background: Rectangle {
+            color: "Red"
+        }
     }
 
     Item {
+
+
         id: zoomContainer
         anchors.fill: parent
         transform: Scale {
@@ -136,6 +160,12 @@ ApplicationWindow {
         }
     }
 
+    MessageDialog {
+        id: reminder
+        text: "Don't forget to close window when Auton is finished running. We are extracting your Robot data"
+        buttons: MessageDialog.Ok
+    }
+
     Row {
         spacing: 8
         anchors {
@@ -161,4 +191,5 @@ ApplicationWindow {
     onClosing: {
         controller.stopServer();
     }
+
 }

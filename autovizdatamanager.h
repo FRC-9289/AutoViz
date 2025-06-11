@@ -12,10 +12,10 @@ class AutoVizDataManager : public QObject {
 
 public:
     explicit AutoVizDataManager(QObject* parent = nullptr);
-    void loadOrConnect(QString const &filePath);
+    void loadOrConnect(QString const &filePath, QString const &projectName);
     void parseAndWriteToCSV(const QByteArray& jsonData);
     bool loadFromCSV();
-    void runPythonServer();
+    void runPythonServer(const QString &projectName);
     void watchConfig();
     void connectToSocket(int port);
 

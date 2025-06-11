@@ -9,7 +9,9 @@ public:
     explicit AppController(QObject* parent = nullptr);
     Q_INVOKABLE void stopServer();
 
-    Q_INVOKABLE void startNewProject(const QString projectName, const QString projectDir);
+    Q_INVOKABLE bool startNewProject(const QString projectName, const QString projectDir);
+
+    Q_INVOKABLE QStringList getProjects();
 
 private:
     AutoVizDataManager* dataManager;

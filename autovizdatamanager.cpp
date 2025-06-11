@@ -17,7 +17,9 @@ AutoVizDataManager::AutoVizDataManager(QObject* parent)
             this, &AutoVizDataManager::onConfigChanged);
 }
 
-void AutoVizDataManager::loadOrConnect(QString const &filePath) {
+void AutoVizDataManager::loadOrConnect(QString const &filePath, QString const &projectName) {
+
+    qDebug() << "Starting AutoViz::loadOrConnect";
     csvFile.setFileName(filePath);
 
     if (csvFile.exists()) {
@@ -31,7 +33,7 @@ void AutoVizDataManager::loadOrConnect(QString const &filePath) {
     }
     csvStream.setDevice(&csvFile);
 
-    runPythonServer();
+    runPythonServer(projectName);
     watchConfig();
 }
 
@@ -54,16 +56,17 @@ bool AutoVizDataManager::loadFromCSV() {
     return true;
 }
 
-void AutoVizDataManager::runPythonServer() {
+void AutoVizDataManager::runPythonServer(const QString &projectName) {
     QString ntDataPath = QCoreApplication::applicationDirPath() + "/NTData";
     QDir ntDataDir(ntDataPath);
     if (!ntDataDir.exists()) {
         qWarning() << "NTData directory does not exist at" << ntDataDir.absolutePath();
         return;
     }
+
     qDebug() << "Starting Python server in" << ntDataDir.absolutePath();
     pythonProcess->setWorkingDirectory(ntDataDir.absolutePath());
-    pythonProcess->start("python3", QStringList() << "main.py");
+    pythonProcess->start("python3", QStringList() << "main.py" << projectName);
 }
 
 void AutoVizDataManager::watchConfig() {

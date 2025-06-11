@@ -5,38 +5,53 @@
 AppController::AppController(QObject* parent)
     : QObject(parent), dataManager(new AutoVizDataManager(this)) {}
 
-void AppController::startNewProject(const QString projectName, const QString projectDir) {
+bool AppController::startNewProject(const QString projectName, const QString projectDir) {
     QString sanitizedName = projectName;
     sanitizedName.replace(' ', '-');  // Qt's built-in method
 
     qDebug() << "[AppController] Starting new project...";
-    dataManager->loadOrConnect(sanitizedName + ".csv");
+    dataManager->loadOrConnect(sanitizedName + ".csv", projectName);
 
     QString filePath = "projects.json";  // example path to your JSON file
     QJsonObject jsonObj = readJson(filePath);
 
-    // Create the inner "Robot" object
-    QJsonObject robotObj;
-    robotObj["Length"] = 1;
-    robotObj["Width"] = 1;
-    robotObj["Mass"] = 50;
-    robotObj["Coef"] = 1.2;
-    robotObj["module-type"] = "MK4i";
+    if(!jsonObj.keys().contains(projectName)){ //If project name doesn't exist already
 
-    // Create the outer project object
-    QJsonObject projectObj;
-    projectObj["Robot"] = robotObj;
-    projectObj["Project-Directory"] = projectDir;
+        // Create the inner "Robot" object
+        QJsonObject robotObj;
+        robotObj["Length"] = 1;
+        robotObj["Width"] = 1;
+        robotObj["Mass"] = 50;
+        robotObj["Coef"] = 1.2;
+        robotObj["module-type"] = "MK4i";
 
-    // Wrap in a QJsonValue (QJsonValue can hold a QJsonObject)
-    QJsonValue projectValue(projectObj);
+        // Create the outer project object
+        QJsonObject projectObj;
+        projectObj["Robot"] = robotObj;
+        projectObj["Project-Directory"] = projectDir;
 
-    // Consistent: store using sanitizedName
-    editJsonFile(filePath, projectName, projectValue);
+        // Wrap in a QJsonValue (QJsonValue can hold a QJsonObject)
+        QJsonValue projectValue(projectObj);
 
-    qDebug() << "[AppController] Project" << sanitizedName << "added to JSON.";
+        // Consistent: store using sanitizedName
+        editJsonFile(filePath, projectName, projectValue);
 
-    qDebug() << jsonObj;
+        qDebug() << "[AppController] Project" << sanitizedName << "added to JSON.";
+
+        qDebug() << jsonObj.keys();
+
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+QStringList AppController::getProjects(){
+    QString filePath = "projects.json";  // example path to your JSON file
+    QJsonObject jsonObj = readJson(filePath);
+
+    return jsonObj.keys();
 }
 
 void AppController::stopServer() {

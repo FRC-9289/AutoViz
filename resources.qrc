@@ -12,5 +12,7 @@
     <qresource prefix="/SimScreen">
         <file>2025 REEFSCAPE Transparent Background.png</file>
     </qresource>
-    <qresource prefix="/"/>
+    <qresource prefix="/">
+        <file>settings.qml</file>
+    </qresource>
 </RCC>

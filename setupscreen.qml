@@ -79,7 +79,6 @@ ApplicationWindow {
                     id: folderDialog
                     title: "Choose Project Directory"
                     onAccepted: {
-                        console.log("Chosen folder:", folderDialog.selectedFolder);
                         directoryField.text = folderDialog.selectedFolder.toString().replace("file://", "");
                     }
                 }
@@ -97,6 +96,13 @@ ApplicationWindow {
                 color: "white"
             }
 
+            Label {
+                id: errorMsg
+                visible: false
+                text: "Project Already Exists"
+                color: "Red"
+            }
+
             // Start Button
             Button {
                 text: "Start Simulation"
@@ -108,13 +114,18 @@ ApplicationWindow {
                     radius: 10
                 }
                 onClicked: {
-                    console.log("Starting simulation with:")
-                    console.log("Directory:", directoryField.text)
-                    console.log("Project Name:", projectNameField.text)
-                    controller.startNewProject(projectNameField.text, directoryField.text)
-                    stackView.push(Qt.resolvedUrl("qrc:/QML/simscreen.qml"))
-                    // Call into your C++ backend or trigger next QML page
-                    window.close()
+                    const success = controller.startNewProject(projectNameField.text, directoryField.text)
+                    if(success){
+                        stackView.push(Qt.resolvedUrl("qrc:/QML/simscreen.qml"), {
+                                           simulationRecording: true,
+                                           projectName: projectNameField.text
+                                       })
+                        // Call into your C++ backend or trigger next QML page
+                        window.close()
+                    }
+                    else {
+                        errorMsg.visible = true;
+                    }
 
                 }
             }
