@@ -10,9 +10,10 @@ bool AppController::startNewProject(const QString projectName, const QString pro
     sanitizedName.replace(' ', '-');  // Qt's built-in method
 
     qDebug() << "[AppController] Starting new project...";
-    dataManager->loadOrConnect(sanitizedName + ".csv", projectName);
+    dataManager->loadOrConnect("backend/"+sanitizedName + ".csv", projectName);
 
-    QString filePath = "projects.json";  // example path to your JSON file
+    QString filePath = "backend/projects.json";  // example path to your JSON file
+
     QJsonObject jsonObj = readJson(filePath);
 
     if(!jsonObj.keys().contains(projectName)){ //If project name doesn't exist already
@@ -48,7 +49,7 @@ bool AppController::startNewProject(const QString projectName, const QString pro
 }
 
 QStringList AppController::getProjects(){
-    QString filePath = "projects.json";  // example path to your JSON file
+    QString filePath = "/backend/projects.json";  // example path to your JSON file
     QJsonObject jsonObj = readJson(filePath);
 
     return jsonObj.keys();

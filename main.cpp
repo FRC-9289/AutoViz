@@ -9,7 +9,6 @@
 
 #include "autovizdatamanager.h"
 #include "loadFileDialog.h"
-#include "Kinematics.h"
 #include "robot.h"
 #include "appcontroller.h"
 

@@ -32,7 +32,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
         loadFileDialog.h
         manageprojects.h manageprojects.cpp
-        Kinematics.h
         failuredetection.h
 
 

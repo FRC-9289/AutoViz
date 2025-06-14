@@ -57,7 +57,7 @@ bool AutoVizDataManager::loadFromCSV() {
 }
 
 void AutoVizDataManager::runPythonServer(const QString &projectName) {
-    QString ntDataPath = QCoreApplication::applicationDirPath() + "/NTData";
+    QString ntDataPath = QCoreApplication::applicationDirPath() + "/backend/NTData";
     QDir ntDataDir(ntDataPath);
     if (!ntDataDir.exists()) {
         qWarning() << "NTData directory does not exist at" << ntDataDir.absolutePath();
@@ -70,7 +70,7 @@ void AutoVizDataManager::runPythonServer(const QString &projectName) {
 }
 
 void AutoVizDataManager::watchConfig() {
-    QString ntDataPath = QCoreApplication::applicationDirPath() + "/NTData";
+    QString ntDataPath = QCoreApplication::applicationDirPath() + "/backend/NTData";
     QDir ntDataDir(ntDataPath);
     QString configPath = ntDataDir.filePath("config.json");
 
