@@ -105,11 +105,20 @@ ApplicationWindow {
                         cursorShape: Qt.PointingHandCursor
 
                         onClicked: {
-                            stackView.push("qrc:/QML/simscreen.qml", {
-                                simulationRecording: false,
-                                projectName: modelData
-                            });
-                            console.log("Project Name: "+modelData)
+                            let component = Qt.createComponent("qrc:/QML/simscreen.qml");
+                            if (component.status === Component.Ready) {
+                                let win = component.createObject(null, {
+                                    simulationRecording: false,
+                                    projectName: modelData
+                                });
+                                if (win) {
+                                    win.show();  // ensure it's visible
+                                } else {
+                                    console.error("❌ Failed to create window");
+                                }
+                            } else {
+                                console.error("❌ Component load error:", component.errorString());
+                            }
                         }
                     }
                 }

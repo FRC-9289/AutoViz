@@ -12,6 +12,9 @@ ApplicationWindow {
     Material.theme: Material.Dark
     Material.accent: "#89CFF0"
 
+    property string projectName: "";
+    property bool simulationRecording: true;
+
     StackView {
         id: stackView
         anchors.fill: parent
@@ -116,17 +119,27 @@ ApplicationWindow {
                 onClicked: {
                     const success = controller.startNewProject(projectNameField.text, directoryField.text)
                     if(success){
-                        stackView.push(Qt.resolvedUrl("qrc:/QML/simscreen.qml"), {
-                                           simulationRecording: true,
-                                           projectName: projectNameField.text
-                                       })
-                        // Call into your C++ backend or trigger next QML page
-                        window.close()
+                        onClicked: {
+                            let component = Qt.createComponent("qrc:/QML/simscreen.qml");
+                            if (component.status === Component.Ready) {
+                                let win = component.createObject(null, {
+                                    simulationRecording: true,
+                                    projectName: projectNameField.text
+                                });
+                                if (win) {
+                                    win.show();  // ensure it's visible
+                                } else {
+                                    console.error("❌ Failed to create window");
+                                }
+                            } else {
+                                console.error("❌ Component load error:", component.errorString());
+                            }
+                        }
                     }
                     else {
                         errorMsg.visible = true;
                     }
-
+                    window.close();
                 }
             }
         }

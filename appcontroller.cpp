@@ -49,10 +49,20 @@ bool AppController::startNewProject(const QString projectName, const QString pro
 }
 
 QStringList AppController::getProjects(){
-    QString filePath = "/backend/projects.json";  // example path to your JSON file
+    QString filePath = "backend/projects.json";  // example path to your JSON file
     QJsonObject jsonObj = readJson(filePath);
 
     return jsonObj.keys();
+}
+
+void AppController::processCSV(const QString projectName) {
+    dataManager->processCSV(projectName);
+}
+
+AutoVizDataManager::ProjectData AppController::getCSV(const QString projectName) {
+    AutoVizDataManager::ProjectData projectData = dataManager->getCSV(projectName);
+    qDebug() << "Project Data Received: " << projectData.ts;
+    return projectData;
 }
 
 void AppController::stopServer() {

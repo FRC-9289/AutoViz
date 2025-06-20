@@ -31,22 +31,18 @@ ApplicationWindow {
     property string projectName: "";
 
     Component.onCompleted: {
-        reminder.open()
         //if(simulationRecording){
         //    stopRecording.visible = true;
         //}
-        console.log(projectName) //Not working
-    }
+        console.log("Name of Project: "+projectName); //Not working
+        console.log("Is Recording: "+simulationRecording); //Not working
+        if(simulationRecording){
+            stopRecording.visible = true;
+            reminder.open();
 
-    Button {
-        id: stopRecording
-        text: "Stop Recording"
-        onClicked: {
-            controller.stopServer();
-            visible: false;
         }
-        background: Rectangle {
-            color: "Red"
+        else {
+            controller.getCSV(projectName);
         }
     }
 
@@ -185,6 +181,25 @@ ApplicationWindow {
         Label {
             text: Math.round(zoomFactor*100)/100+ "x"
             color: "white"
+        }
+    }
+
+
+    Button {
+        id: stopRecording
+        text: "Stop Recording"
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.margins: 20
+        visible: false //Set to true if simulation recording
+        background: Rectangle {
+            color: Qt.rgba(255,0,0,0.5)
+            radius: 10
+        }
+        onClicked: {
+            stopRecording.visible = false;
+            controller.stopServer();
+            controller.processCSV(projectName);
         }
     }
 
