@@ -162,83 +162,115 @@ void AutoVizDataManager::parseAndWriteToCSV(const QByteArray& jsonData) {
     csvStream.flush();
 }
 
-void AutoVizDataManager::processCSV(const QString projectName) {
+void AutoVizDataManager::processCSV(const QString& projectName) {
+
     if (processCSVProcess) {
+        processCSVProcess->disconnect();
+        if (processCSVProcess->state() != QProcess::NotRunning) {
+            processCSVProcess->kill();
+            processCSVProcess->waitForFinished();
+        }
         processCSVProcess->deleteLater();
     }
 
-    processCSVProcess = new QProcess(this);  // ← you missed this earlier
+    processCSVProcess = new QProcess(this);
+    QString workingDir = QCoreApplication::applicationDirPath() + "/backend";
+    processCSVProcess->setWorkingDirectory(workingDir);
 
-    // ✅ Now it's safe to configure
-    QString workingDir = QCoreApplication::applicationDirPath();
-    processCSVProcess->setWorkingDirectory(workingDir + "/backend");
-
-    // Output logging
     connect(processCSVProcess, &QProcess::readyReadStandardOutput, this, [=]() {
-        qDebug() << "STDOUT:" << processCSVProcess->readAllStandardOutput();
+        qDebug() << "processCSV STDOUT:" << processCSVProcess->readAllStandardOutput();
     });
 
     connect(processCSVProcess, &QProcess::readyReadStandardError, this, [=]() {
-        qDebug() << "STDERR:" << processCSVProcess->readAllStandardError();
+        qDebug() << "processCSV STDERR:" << processCSVProcess->readAllStandardError();
     });
 
     connect(processCSVProcess, &QProcess::started, this, []() {
-        qDebug() << "Process started successfully.";
+        qDebug() << "processCSV started.";
     });
 
     connect(processCSVProcess, &QProcess::errorOccurred, this, [](QProcess::ProcessError error) {
-        qWarning() << "Process error occurred:" << error;
+        qWarning() << "processCSV error:" << error;
     });
 
     connect(processCSVProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, [](int exitCode, QProcess::ExitStatus exitStatus) {
-                qDebug() << "Process finished with exit code:" << exitCode << "and status:" << exitStatus;
+            this, [this, projectName](int exitCode, QProcess::ExitStatus status) {
+                qDebug() << "processCSV finished with exit code:" << exitCode << " status:" << status;
+                AutoVizDataManager::ProjectData projectData = getCSV(projectName);  // run getCSV after processCSV done
             });
-    processCSVProcess->start("./backendcontroller",QStringList() << "process" << projectName);
+
+    processCSVProcess->start("./backendcontroller", QStringList() << "process" << projectName);
 
     if (!processCSVProcess->waitForStarted(3000)) {
-        qWarning() << "Failed to start process.";
+        qWarning() << "processCSV failed to start.";
     }
 }
 
 
-AutoVizDataManager::ProjectData AutoVizDataManager::getCSV(const QString projectName) {
-    if (processCSVProcess) {
-        processCSVProcess->deleteLater();
+AutoVizDataManager::ProjectData AutoVizDataManager::getCSV(const QString& projectName) {
+    qDebug() << "Running getCSV for project:" << projectName;
+
+    QProcess* getProcess = new QProcess(this);
+    QString workingDir = QCoreApplication::applicationDirPath() + "/backend";
+    getProcess->setWorkingDirectory(workingDir);
+
+    connect(getProcess, &QProcess::readyReadStandardError, this, [getProcess]() {
+        qWarning() << "getCSV STDERR:" << getProcess->readAllStandardError();
+    });
+
+    connect(getProcess, &QProcess::started, this, []() {
+        qDebug() << "getCSV started.";
+    });
+
+    connect(getProcess, &QProcess::errorOccurred, this, [](QProcess::ProcessError error) {
+        qWarning() << "getCSV error:" << error;
+    });
+
+    connect(getProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, [this, getProcess](int exitCode, QProcess::ExitStatus status) {
+
+                ProjectData projectData;
+                QByteArray output = getProcess->readAllStandardOutput();
+                qDebug() << "getCSV finished with exit code:" << exitCode << " status:" << status;
+
+                if (!output.trimmed().isEmpty()) {
+                    QStringList lines = QString::fromUtf8(output).trimmed().split('\n', Qt::SkipEmptyParts);
+                    for (const QString& line : lines) {
+                        QStringList split = line.split(' ', Qt::SkipEmptyParts);
+                        if (split.size() >= 4) {
+                            projectData.v_x.append(split.at(0).toDouble());
+                            projectData.v_y.append(split.at(1).toDouble());
+                            projectData.omega.append(split.at(2).toDouble());
+                            projectData.ts.append(split.at(3).toDouble());
+                        } else {
+                            qWarning() << "Malformed line:" << line;
+                        }
+                    }
+                } else {
+                    qWarning() << "No output from backendcontroller get.";
+                }
+
+                // You can update UI or variables here directly with projectData
+                qDebug() << "Processed ProjectData:";
+                qDebug() << "v_x:" << projectData.v_x;
+                qDebug() << "v_y:" << projectData.v_y;
+                qDebug() << "omega:" << projectData.omega;
+                qDebug() << "ts:" << projectData.ts;
+
+                getProcess->deleteLater();
+
+                return projectData;
+            });
+
+    getProcess->start("./backendcontroller", QStringList() << "get" << projectName);
+
+    if (!getProcess->waitForStarted(3000)) {
+        qWarning() << "getCSV failed to start.";
+        getProcess->deleteLater();
     }
-
-    processCSVProcess = new QProcess(this);  // ← you missed this earlier
-
-    // ✅ Now it's safe to configure
-    QString workingDir = QCoreApplication::applicationDirPath();
-    processCSVProcess->setWorkingDirectory(workingDir + "/backend");
-
-    processCSVProcess->start("./backendcontroller", QStringList() << "get" << projectName);
-
-    if (!processCSVProcess->waitForFinished(3000)) {
-        qWarning() << "Failed to run process or timeout occurred.";
-        return {};
-    }
-
-    QByteArray dataOutput = processCSVProcess->readAllStandardOutput();
-    AutoVizDataManager::ProjectData projectData;
-
-    QStringList lines = QString::fromUtf8(dataOutput).trimmed().split('\n');
-    for (const QString& line : lines) {
-        qDebug() << "Line: " << line;
-        QStringList split = line.split(' ');
-
-        projectData.v_x.append(split.at(0).toDouble());
-        projectData.v_y.append(split.at(1).toDouble());
-        projectData.omega.append(split.at(2).toDouble());
-        projectData.ts.append(split.at(3).toDouble());
-    }
-    qDebug() << "    V_X: " << projectData.v_x;
-    qDebug() << "    V_Y: " << projectData.v_y;
-    qDebug() << "    Om: : " << projectData.omega;
-    qDebug() << "    TS: " << projectData.ts;
-    return projectData;
 }
+
+
 
 void AutoVizDataManager::stopServer() {
     if (pythonProcess && pythonProcess->state() != QProcess::NotRunning) {

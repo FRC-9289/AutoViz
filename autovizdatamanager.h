@@ -28,8 +28,8 @@ public:
     void runPythonServer(const QString &projectName);
     void watchConfig();
     void connectToSocket(int port);
-    void processCSV(const QString projectName);
-    ProjectData getCSV(const QString projectName);
+    void processCSV(const QString& projectName);
+    AutoVizDataManager::ProjectData getCSV(const QString& projectName);
 
     QTcpSocket* socket;
     QFile csvFile;
