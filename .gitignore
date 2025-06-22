@@ -1,5 +1,23 @@
 /.DS_Storebuild/
-# Ignore build artifacts
 *.o
 *.make
 *.internal
+*.cmake
+*.rsp
+*.conan
+*.idx
+*.pyi
+*.sh
+*.typed
+*.plist
+*.d
+*.check_cache
+*.yaml
+*.ts
+*.out
+*.log
+*.1
+*.svg
+.DS_Store
+Makefile2
+Makefile
