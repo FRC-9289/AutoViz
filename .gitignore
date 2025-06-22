@@ -1,6 +1,5 @@
 /.DS_Storebuild/
 # Ignore build artifacts
-build/
 *.o
 *.make
 *.internal
