@@ -61,7 +61,6 @@ void AppController::processCSV(const QString projectName) {
 
 AutoVizDataManager::ProjectData AppController::getCSV(const QString projectName) {
     AutoVizDataManager::ProjectData projectData = dataManager->getCSV(projectName);
-    qDebug() << "Project Data Received: " << projectData.ts;
     return projectData;
 }
 
