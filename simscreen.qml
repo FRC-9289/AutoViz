@@ -42,7 +42,12 @@ ApplicationWindow {
 
         }
         else {
-            controller.getCSV(projectName);
+            var projectData = controller.getCSV(projectName);
+            console.log("TIMESTAMP: "+projectData.ts);
+            console.log("V_X: "+projectData.v_x);
+            console.log("V_Y: "+projectData.v_y);
+            console.log("OMEGA: "+projectData.omega);
+
         }
     }
 
@@ -199,7 +204,11 @@ ApplicationWindow {
         onClicked: {
             stopRecording.visible = false;
             controller.stopServer();
-            controller.processCSV(projectName);
+            var projectData = controller.getCSV(projectName);
+            console.log("TIMESTAMP: "+projectData.ts);
+            console.log("V_X: "+projectData.v_x);
+            console.log("V_Y: "+projectData.v_y);
+            console.log("OMEGA: "+projectData.omega);
         }
     }
 

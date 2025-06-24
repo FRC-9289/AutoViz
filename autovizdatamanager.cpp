@@ -162,7 +162,7 @@ void AutoVizDataManager::parseAndWriteToCSV(const QByteArray& jsonData) {
     csvStream.flush();
 }
 
-void AutoVizDataManager::processCSV(const QString& projectName) {
+AutoVizDataManager::ProjectData AutoVizDataManager::processCSV(const QString& projectName) {
 
     if (processCSVProcess) {
         processCSVProcess->disconnect();
@@ -197,6 +197,7 @@ void AutoVizDataManager::processCSV(const QString& projectName) {
             this, [this, projectName](int exitCode, QProcess::ExitStatus status) {
                 qDebug() << "processCSV finished with exit code:" << exitCode << " status:" << status;
                 AutoVizDataManager::ProjectData projectData = getCSV(projectName);  // run getCSV after processCSV done
+                return projectData;
             });
 
     processCSVProcess->start("./backendcontroller", QStringList() << "process" << projectName);
@@ -210,65 +211,55 @@ void AutoVizDataManager::processCSV(const QString& projectName) {
 AutoVizDataManager::ProjectData AutoVizDataManager::getCSV(const QString& projectName) {
     qDebug() << "Running getCSV for project:" << projectName;
 
-    QProcess* getProcess = new QProcess(this);
+    QProcess getProcess;
     QString workingDir = QCoreApplication::applicationDirPath() + "/backend";
-    getProcess->setWorkingDirectory(workingDir);
+    getProcess.setWorkingDirectory(workingDir);
 
-    connect(getProcess, &QProcess::readyReadStandardError, this, [getProcess]() {
-        qWarning() << "getCSV STDERR:" << getProcess->readAllStandardError();
-    });
+    getProcess.start("./backendcontroller", QStringList() << "get" << projectName);
 
-    connect(getProcess, &QProcess::started, this, []() {
-        qDebug() << "getCSV started.";
-    });
-
-    connect(getProcess, &QProcess::errorOccurred, this, [](QProcess::ProcessError error) {
-        qWarning() << "getCSV error:" << error;
-    });
-
-    connect(getProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, [this, getProcess](int exitCode, QProcess::ExitStatus status) {
-
-                ProjectData projectData;
-                QByteArray output = getProcess->readAllStandardOutput();
-                qDebug() << "getCSV finished with exit code:" << exitCode << " status:" << status;
-
-                if (!output.trimmed().isEmpty()) {
-                    QStringList lines = QString::fromUtf8(output).trimmed().split('\n', Qt::SkipEmptyParts);
-                    for (const QString& line : lines) {
-                        QStringList split = line.split(' ', Qt::SkipEmptyParts);
-                        if (split.size() >= 4) {
-                            projectData.v_x.append(split.at(0).toDouble());
-                            projectData.v_y.append(split.at(1).toDouble());
-                            projectData.omega.append(split.at(2).toDouble());
-                            projectData.ts.append(split.at(3).toDouble());
-                        } else {
-                            qWarning() << "Malformed line:" << line;
-                        }
-                    }
-                } else {
-                    qWarning() << "No output from backendcontroller get.";
-                }
-
-                // You can update UI or variables here directly with projectData
-                qDebug() << "Processed ProjectData:";
-                qDebug() << "v_x:" << projectData.v_x;
-                qDebug() << "v_y:" << projectData.v_y;
-                qDebug() << "omega:" << projectData.omega;
-                qDebug() << "ts:" << projectData.ts;
-
-                getProcess->deleteLater();
-
-                return projectData;
-            });
-
-    getProcess->start("./backendcontroller", QStringList() << "get" << projectName);
-
-    if (!getProcess->waitForStarted(3000)) {
+    if (!getProcess.waitForStarted(3000)) {
         qWarning() << "getCSV failed to start.";
-        getProcess->deleteLater();
+        return {};
     }
+
+    if (!getProcess.waitForFinished(10000)) {
+        qWarning() << "getCSV timed out.";
+        return {};
+    }
+
+    if (getProcess.exitStatus() != QProcess::NormalExit || getProcess.exitCode() != 0) {
+        qWarning() << "getCSV process crashed or failed with code" << getProcess.exitCode();
+        return {};
+    }
+
+    QByteArray output = getProcess.readAllStandardOutput();
+    QByteArray errorOutput = getProcess.readAllStandardError();
+    if (!errorOutput.isEmpty()) {
+        qWarning() << "getCSV STDERR:" << errorOutput;
+    }
+
+    ProjectData projectData;
+
+    if (!output.trimmed().isEmpty()) {
+        QStringList lines = QString::fromUtf8(output).trimmed().split('\n', Qt::SkipEmptyParts);
+        for (const QString& line : lines) {
+            QStringList split = line.split(' ', Qt::SkipEmptyParts);
+            if (split.size() >= 4) {
+                projectData.v_x.append(split.at(0).toDouble());
+                projectData.v_y.append(split.at(1).toDouble());
+                projectData.omega.append(split.at(2).toDouble());
+                projectData.ts.append(split.at(3).toDouble());
+            } else {
+                qWarning() << "Malformed line:" << line;
+            }
+        }
+    } else {
+        qWarning() << "No output from backendcontroller get.";
+    }
+
+    return projectData;
 }
+
 
 
 

@@ -12,8 +12,8 @@ public:
     Q_INVOKABLE bool startNewProject(const QString projectName, const QString projectDir);
 
     Q_INVOKABLE QStringList getProjects();
-    Q_INVOKABLE void processCSV(const QString projectName);
-    Q_INVOKABLE AutoVizDataManager::ProjectData getCSV(const QString projectName);
+    Q_INVOKABLE QVariantMap processCSV(const QString projectName);
+    Q_INVOKABLE QVariantMap getCSV(const QString projectName);
 
 private:
     AutoVizDataManager* dataManager;

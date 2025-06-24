@@ -55,13 +55,42 @@ QStringList AppController::getProjects(){
     return jsonObj.keys();
 }
 
-void AppController::processCSV(const QString projectName) {
-    dataManager->processCSV(projectName);
+QVariantMap AppController::processCSV(const QString projectName) {
+    AutoVizDataManager::ProjectData projectData = dataManager->processCSV(projectName);
+
+    QVariantMap map;
+    QVariantList vx, vy, omega, ts;
+
+    for (double val : projectData.v_x) vx.append(val);
+    for (double val : projectData.v_y) vy.append(val);
+    for (double val : projectData.omega) omega.append(val);
+    for (double val : projectData.ts) ts.append(val);
+
+    map["v_x"] = vx;
+    map["v_y"] = vy;
+    map["omega"] = omega;
+    map["ts"] = ts;
+
+    return map;
 }
 
-AutoVizDataManager::ProjectData AppController::getCSV(const QString projectName) {
+QVariantMap AppController::getCSV(const QString projectName) {
     AutoVizDataManager::ProjectData projectData = dataManager->getCSV(projectName);
-    return projectData;
+
+    QVariantMap map;
+    QVariantList vx, vy, omega, ts;
+
+    for (double val : projectData.v_x) vx.append(val);
+    for (double val : projectData.v_y) vy.append(val);
+    for (double val : projectData.omega) omega.append(val);
+    for (double val : projectData.ts) ts.append(val);
+
+    map["v_x"] = vx;
+    map["v_y"] = vy;
+    map["omega"] = omega;
+    map["ts"] = ts;
+
+    return map;
 }
 
 void AppController::stopServer() {
