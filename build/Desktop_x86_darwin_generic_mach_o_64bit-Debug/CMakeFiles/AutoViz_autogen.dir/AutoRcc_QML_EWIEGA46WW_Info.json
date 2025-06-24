@@ -1,0 +1,20 @@
+{
+	"BUILD_DIR" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/build/Desktop_x86_darwin_generic_mach_o_64bit-Debug/AutoViz_autogen",
+	"CMAKE_BINARY_DIR" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/build/Desktop_x86_darwin_generic_mach_o_64bit-Debug",
+	"CMAKE_CURRENT_BINARY_DIR" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/build/Desktop_x86_darwin_generic_mach_o_64bit-Debug",
+	"CMAKE_CURRENT_SOURCE_DIR" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz",
+	"CMAKE_SOURCE_DIR" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz",
+	"GENERATOR" : "Unix Makefiles",
+	"INCLUDE_DIR" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/build/Desktop_x86_darwin_generic_mach_o_64bit-Debug/AutoViz_autogen/include",
+	"INPUTS" : [],
+	"LOCK_FILE" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/build/Desktop_x86_darwin_generic_mach_o_64bit-Debug/CMakeFiles/AutoViz_autogen.dir/AutoRcc_QML_EWIEGA46WW_Lock.lock",
+	"MULTI_CONFIG" : false,
+	"OPTIONS" : [ "--no-zstd", "-name", "QML" ],
+	"OUTPUT_CHECKSUM" : "EWIEGA46WW",
+	"OUTPUT_NAME" : "qrc_QML.cpp",
+	"RCC_EXECUTABLE" : "/Users/adityachakraborty/Qt/6.8.2/macos/libexec/rcc",
+	"RCC_LIST_OPTIONS" : [ "--list" ],
+	"SETTINGS_FILE" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/build/Desktop_x86_darwin_generic_mach_o_64bit-Debug/CMakeFiles/AutoViz_autogen.dir/AutoRcc_QML_EWIEGA46WW_Used.txt",
+	"SOURCE" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/QML.qrc",
+	"VERBOSITY" : 0
+}

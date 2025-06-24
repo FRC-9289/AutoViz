@@ -1,0 +1,2 @@
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc lib/libautoviz_backend.a CMakeFiles/autoviz_backend.dir/CMakeFiles/3.28.0/CompilerIdCXX/CMakeCXXCompilerId.cpp.o CMakeFiles/autoviz_backend.dir/motionmodel.cpp.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib lib/libautoviz_backend.a

@@ -1,0 +1,30 @@
+{
+	"BUILD_DIR" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/build/Desktop_x86_darwin_generic_mach_o_64bit-Debug2/AutoViz_autogen",
+	"CMAKE_BINARY_DIR" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/build/Desktop_x86_darwin_generic_mach_o_64bit-Debug2",
+	"CMAKE_CURRENT_BINARY_DIR" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/build/Desktop_x86_darwin_generic_mach_o_64bit-Debug2",
+	"CMAKE_CURRENT_SOURCE_DIR" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz",
+	"CMAKE_SOURCE_DIR" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz",
+	"GENERATOR" : "Unix Makefiles",
+	"INCLUDE_DIR" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/build/Desktop_x86_darwin_generic_mach_o_64bit-Debug2/AutoViz_autogen/include",
+	"INPUTS" : 
+	[
+		"/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/settings.qml",
+		"/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/app-logo.png",
+		"/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/2025 REEFSCAPE Transparent Background.png",
+		"/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/robotsettings.qml",
+		"/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/setupscreen.qml",
+		"/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/robot.qml",
+		"/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/main.qml",
+		"/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/simscreen.qml"
+	],
+	"LOCK_FILE" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/build/Desktop_x86_darwin_generic_mach_o_64bit-Debug2/CMakeFiles/AutoViz_autogen.dir/AutoRcc_resources_EWIEGA46WW_Lock.lock",
+	"MULTI_CONFIG" : false,
+	"OPTIONS" : [ "--no-zstd", "-name", "resources" ],
+	"OUTPUT_CHECKSUM" : "EWIEGA46WW",
+	"OUTPUT_NAME" : "qrc_resources.cpp",
+	"RCC_EXECUTABLE" : "/Users/adityachakraborty/Qt/6.8.2/macos/libexec/rcc",
+	"RCC_LIST_OPTIONS" : [ "--list" ],
+	"SETTINGS_FILE" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/build/Desktop_x86_darwin_generic_mach_o_64bit-Debug2/CMakeFiles/AutoViz_autogen.dir/AutoRcc_resources_EWIEGA46WW_Used.txt",
+	"SOURCE" : "/Users/adityachakraborty/Desktop/Code/C++/Robotics/AutoViz/resources.qrc",
+	"VERBOSITY" : 0
+}
