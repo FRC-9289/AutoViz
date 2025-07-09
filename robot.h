@@ -16,14 +16,14 @@ public:
         velocityY(0.0),
         omega(0.0),
         isSlipping{{false, false, false, false}},
-        heading(qDegreesToRadians(-122.2)),
+        heading(qDegreesToRadians(177.9)),
         x(4.51),
         y(6.58),
         time(0.000000)
     {}
 
     void updateHeading(double angularVelocity, double dt) {
-        heading += angularVelocity * dt*0.7;
+        heading += angularVelocity * dt;
         heading = normalizeAnglePI(heading);
     }
 

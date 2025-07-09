@@ -48,6 +48,11 @@ ApplicationWindow {
             console.log("V_Y: "+projectData.v_y);
             console.log("OMEGA: "+projectData.omega);
 
+            for(let i=0;i<projectData.ts.length;i++) {
+                Robot.updateHeading(projectData.omega[i],projectData.ts[i]); //TODO Error
+            }
+            console.log(Robot.heading)
+
         }
     }
 
