@@ -1,6 +1,7 @@
 #include "AppController.h"
 #include "managejson.h"
 #include <QDebug>
+#include "robot.h"
 
 AppController::AppController(QObject* parent)
     : QObject(parent), dataManager(new AutoVizDataManager(this)) {}
@@ -93,7 +94,17 @@ QVariantMap AppController::getCSV(const QString projectName) {
     return map;
 }
 
+void AppController::updateHeading(double omega, double dt, Robot *robot) {
+    if (robot) robot->updateHeading(omega, dt);
+}
+
+double AppController::getHeading(Robot *robot) { if(robot) return robot->getHeading();}
+
+void AppController::setHeading(double angle, Robot *robot) { if(robot) robot->setHeading(angle);}
+
 void AppController::stopServer() {
     dataManager->stopServer();
 }
 
+double AppController::degreesToRadians(double angle) { return qDegreesToRadians(angle);}
+double AppController::radiansToDegrees(double angle) { return qRadiansToDegrees(angle);}

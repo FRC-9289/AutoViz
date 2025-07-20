@@ -2,6 +2,7 @@
 #define ROBOT_H
 
 #include <Eigen/Dense>
+#include <QtCore/qdebug.h>
 #include <array>
 #include <QObject>
 #include <QtMath>
@@ -23,7 +24,10 @@ public:
     {}
 
     void updateHeading(double angularVelocity, double dt) {
+        qDebug() << "PREV HEADING: " << heading;
+        qDebug() << "INCREASE HEADING BY " << angularVelocity * dt;
         heading += angularVelocity * dt;
+        qDebug() << "NEW HEADING: " << heading;
         heading = normalizeAnglePI(heading);
     }
 
@@ -63,6 +67,8 @@ public:
             isSlipping[index] = slipping;
         }
     }
+
+    void setHeading(double angle) { heading = angle;}
 
     void setVelocityRelative(){
         Eigen::Rotation2D<double> rot(M_PI/2 - heading);

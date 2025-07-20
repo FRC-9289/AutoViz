@@ -31,30 +31,31 @@ ApplicationWindow {
     property string projectName: "";
 
     Component.onCompleted: {
-        //if(simulationRecording){
-        //    stopRecording.visible = true;
-        //}
-        console.log("Name of Project: "+projectName); //Not working
-        console.log("Is Recording: "+simulationRecording); //Not working
-        if(simulationRecording){
+        console.log("Name of Project: " + projectName);
+        console.log("Is Recording: " + simulationRecording);
+
+        if (simulationRecording) {
             stopRecording.visible = true;
             reminder.open();
-
         }
         else {
             var projectData = controller.getCSV(projectName);
-            console.log("TIMESTAMP: "+projectData.ts);
-            console.log("V_X: "+projectData.v_x);
-            console.log("V_Y: "+projectData.v_y);
-            console.log("OMEGA: "+projectData.omega);
-
-            for(let i=0;i<projectData.ts.length;i++) {
-                Robot.updateHeading(projectData.omega[i],projectData.ts[i]); //TODO Error
+            controller.setHeading(controller.degreesToRadians(179.9), Robot);
+            console.log("TIMESTAMP: " + projectData.ts);
+            console.log("V_X: " + projectData.v_x);
+            console.log("V_Y: " + projectData.v_y);
+            console.log("OMEGA: " + projectData.omega);
+            console.log("START HEADING: "+controller.getHeading(Robot));
+            for (let i = 0; i < projectData.ts.length; i++) {
+                controller.updateHeading(projectData.omega[i], projectData.ts[i], Robot);
+                console.log("HEADING: "+controller.radiansToDegrees(controller.getHeading(Robot)));
             }
-            console.log(Robot.heading)
 
+            console.log("END HEADING: "+controller.radiansToDegrees(controller.getHeading(Robot)));
         }
     }
+
+
 
     Item {
 
@@ -84,10 +85,17 @@ ApplicationWindow {
             id: robot
             source: "robot.qml"
             anchors.centerIn: parent
-            onLoaded: {
-                updateRobotSize();
-            }
+
         }
+
+        ParallelAnimation {
+            id: moveRotateAnim
+            NumberAnimation { id: animX; target: robot.item; property: "x"; duration: 0 }
+            NumberAnimation { id: animY; target: robot.item; property: "y"; duration: 0 }
+            NumberAnimation { id: animRotation; target: robot.item; property: "rotation"; duration: 0 }
+        }
+
+
 
         function setRobotRotation(degrees) {
             if (robot.item) {
@@ -103,10 +111,30 @@ ApplicationWindow {
             }
         }
 
+        function moveAndRotateRobot(x_velocity, y_velocity, new_angle, duration) {
+            let dt = duration * 1000;  // duration in ms
+            let dx = (x_velocity*spacing) * duration;
+            let dy = (-y_velocity*spacing) * duration;
+
+            animX.to = robot.item.x + dx;
+            animX.duration = dt;
+
+            animY.to = robot.item.y + dy;
+            animY.duration = dt;
+
+            animRotation.to = new_angle;
+            animRotation.duration = dt;
+
+            moveRotateAnim.running = false; // reset if running
+            moveRotateAnim.running = true;  // start animation
+        }
+
         // Redraw grid and resize robot when size changes
         onWidthChanged: {
             gridCanvas.requestPaint();
             updateRobotSize();
+            moveAndRotateRobot(1,0,90,1); //Dummy Data
+
         }
         onHeightChanged: {
             gridCanvas.requestPaint();
