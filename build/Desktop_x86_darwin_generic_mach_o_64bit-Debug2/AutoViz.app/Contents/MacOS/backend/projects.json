@@ -8,35 +8,5 @@
             "Width": 1,
             "module-type": "MK4i"
         }
-    },
-    "NT2": {
-        "Project-Directory": "/Users/adityachakraborty/Desktop/Code/Java/Robotics/2025/NetworkTablesDrivetrain",
-        "Robot": {
-            "Coef": 1.2,
-            "Length": 1,
-            "Mass": 50,
-            "Width": 1,
-            "module-type": "MK4i"
-        }
-    },
-    "NT3": {
-        "Project-Directory": "/Users/adityachakraborty/Desktop/Code/Java/Robotics/2025/NetworkTablesDrivetrain",
-        "Robot": {
-            "Coef": 1.2,
-            "Length": 1,
-            "Mass": 50,
-            "Width": 1,
-            "module-type": "MK4i"
-        }
-    },
-    "NT4": {
-        "Project-Directory": "/Users/adityachakraborty/Desktop/Code/Java/Robotics/2025/NetworkTablesDrivetrain",
-        "Robot": {
-            "Coef": 1.2,
-            "Length": 1,
-            "Mass": 50,
-            "Width": 1,
-            "module-type": "MK4i"
-        }
     }
 }

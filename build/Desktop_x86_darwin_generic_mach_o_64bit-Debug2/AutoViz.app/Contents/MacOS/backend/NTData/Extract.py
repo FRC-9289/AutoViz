@@ -39,7 +39,7 @@ def extract_and_send():
             raise TimeoutError("NetworkTables failed to connect within 10 seconds.")
         time.sleep(0.1)
 
-    swerve_table = NetworkTables.getTable("SwerveDrive")
+    swerve_table = NetworkTables.getTable("Swerve")
 
     # Create a TCP/IP socket
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -70,6 +70,9 @@ def extract_and_send():
                     "angle":angle,
                     "velocity":velocity
                 }
+            print(
+                f"Sending data: {json.dumps(packet, indent=2)}"
+            )
             end_time = time.time()
             packet['Robot State'] = swerve_table.getString("Robot State", "Unknown")
             packet['timestamp']=end_time-prev_ts

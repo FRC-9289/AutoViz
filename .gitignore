@@ -18,6 +18,17 @@
 *.log
 *.1
 *.svg
+*.json
+AutoViz
+*.csv
+*.ipynb
+moc_*.cpp
+mocs_*.cpp
+*.pyc
+
+#Virtual Environments
+.venv
+venv
 .DS_Store
 Makefile2
 Makefile
