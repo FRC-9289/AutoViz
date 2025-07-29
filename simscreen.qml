@@ -4,7 +4,6 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Dialogs
 
-
 ApplicationWindow {
     width: 1000
     height: 800
@@ -19,47 +18,68 @@ ApplicationWindow {
     property real minZoom: 0.2
     property real maxZoom: 5.0
 
-    // Base width and spacing ratio
     property real baseWidth: 477
     property real baseSpacing: 24.22265625
-    property real robotBaseSize: baseSpacing  // size in px for 1m robot at base width
+    property real robotBaseSize: baseSpacing
+    property real spacing: (width / baseWidth) * baseSpacing / 2.0
+    property double startHeading: 0;
 
-    // Calculate spacing proportionally to current width
-    property real spacing: (width / baseWidth) * baseSpacing/2.0
+    property bool simulationRecording: false
+    property string projectName: ""
+    property int frameIndex: 0
+    property var projectData: ({})
 
-    property bool simulationRecording: false;
-    property string projectName: "";
+    function moveAndRotateRobot(x_velocity, y_velocity, new_angle, duration) {
+        let dt = duration * 1000
+        let dx = (x_velocity * spacing) * duration
+        let dy = (-y_velocity * spacing) * duration
 
-    Component.onCompleted: {
-        console.log("Name of Project: " + projectName);
-        console.log("Is Recording: " + simulationRecording);
+        animX.to = robot.item.x + dx
+        animX.duration = dt
 
-        if (simulationRecording) {
-            stopRecording.visible = true;
-            reminder.open();
-        }
-        else {
-            var projectData = controller.getCSV(projectName);
-            controller.setHeading(controller.degreesToRadians(179.9), Robot);
-            console.log("TIMESTAMP: " + projectData.ts);
-            console.log("V_X: " + projectData.v_x);
-            console.log("V_Y: " + projectData.v_y);
-            console.log("OMEGA: " + projectData.omega);
-            console.log("START HEADING: "+controller.getHeading(Robot));
-            for (let i = 0; i < projectData.ts.length; i++) {
-                controller.updateHeading(projectData.omega[i], projectData.ts[i], Robot);
-                console.log("HEADING: "+controller.radiansToDegrees(controller.getHeading(Robot)));
-            }
+        animY.to = robot.item.y + dy
+        animY.duration = dt
 
-            console.log("END HEADING: "+controller.radiansToDegrees(controller.getHeading(Robot)));
-        }
+        animRotation.to = new_angle
+        animRotation.duration = dt
+
+        moveRotateAnim.running = false
+        moveRotateAnim.running = true
     }
 
 
 
+    Connections {
+        target: controller
+        onCsvProcessed: (result) => {
+                            projectData=result;
+                        }
+    }
+
+    Timer {
+        id: animationTimer
+        interval: 100
+        repeat: true
+        running: false
+        onTriggered: {
+            if (frameIndex >= projectData.ts.length) {
+                stop()
+                return
+            }
+
+            controller.updateRobot(projectData.v_x[frameIndex],projectData.v_y[frameIndex],projectData.omega[frameIndex],projectData.ts[frameIndex],Robot);
+
+            console.log("ANGLE: "+controller.radiansToDegrees(controller.getHeading(Robot)));
+
+            startHeading = controller.radiansToDegrees(controller.getHeading(Robot));
+
+            moveAndRotateRobot(0,0,90-startHeading,1);
+
+            frameIndex++;
+        }
+    }
+
     Item {
-
-
         id: zoomContainer
         anchors.fill: parent
         transform: Scale {
@@ -85,7 +105,6 @@ ApplicationWindow {
             id: robot
             source: "robot.qml"
             anchors.centerIn: parent
-
         }
 
         ParallelAnimation {
@@ -95,78 +114,44 @@ ApplicationWindow {
             NumberAnimation { id: animRotation; target: robot.item; property: "rotation"; duration: 0 }
         }
 
-
-
-        function setRobotRotation(degrees) {
-            if (robot.item) {
-                robot.item.rotation = degrees
-            }
-        }
-
         function updateRobotSize() {
             if (robot.item) {
-                let scale = width / baseWidth;
-                robot.item.width = robotBaseSize * scale;
-                robot.item.height = robotBaseSize * scale;
+                let scale = width / baseWidth
+                robot.item.width = robotBaseSize * scale
+                robot.item.height = robotBaseSize * scale
             }
         }
 
-        function moveAndRotateRobot(x_velocity, y_velocity, new_angle, duration) {
-            let dt = duration * 1000;  // duration in ms
-            let dx = (x_velocity*spacing) * duration;
-            let dy = (-y_velocity*spacing) * duration;
-
-            animX.to = robot.item.x + dx;
-            animX.duration = dt;
-
-            animY.to = robot.item.y + dy;
-            animY.duration = dt;
-
-            animRotation.to = new_angle;
-            animRotation.duration = dt;
-
-            moveRotateAnim.running = false; // reset if running
-            moveRotateAnim.running = true;  // start animation
-        }
-
-        // Redraw grid and resize robot when size changes
         onWidthChanged: {
-            gridCanvas.requestPaint();
-            updateRobotSize();
-            moveAndRotateRobot(1,0,90,1); //Dummy Data
-
+            gridCanvas.requestPaint()
+            updateRobotSize()
         }
         onHeightChanged: {
-            gridCanvas.requestPaint();
-            updateRobotSize();
+            gridCanvas.requestPaint()
+            updateRobotSize()
         }
 
         Canvas {
             id: gridCanvas
             anchors.fill: parent
-
             onPaint: {
-                let ctx = getContext("2d");
-                ctx.clearRect(0, 0, width, height);
-
-                ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-                ctx.lineWidth = 1;
-
+                let ctx = getContext("2d")
+                ctx.clearRect(0, 0, width, height)
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.3)"
+                ctx.lineWidth = 1
                 for (let x = 0; x <= width; x += spacing) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, height);
-                    ctx.stroke();
+                    ctx.beginPath()
+                    ctx.moveTo(x, 0)
+                    ctx.lineTo(x, height)
+                    ctx.stroke()
                 }
-
                 for (let y = 0; y <= height; y += spacing) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(width, y);
-                    ctx.stroke();
+                    ctx.beginPath()
+                    ctx.moveTo(0, y)
+                    ctx.lineTo(width, y)
+                    ctx.stroke()
                 }
             }
-
             Component.onCompleted: requestPaint()
         }
     }
@@ -179,18 +164,13 @@ ApplicationWindow {
             pinch.target: zoomContainer
             pinch.minimumScale: minZoom
             pinch.maximumScale: maxZoom
-            pinch.dragAxis: Pinch.NoDrag  // disables panning
-
+            pinch.dragAxis: Pinch.NoDrag
             onPinchUpdated: {
-                const sensitivity = 0.1;  // Lower = slower zoom, try 0.1 - 0.3
-                const zoomDelta = 1 + (pinch.scale - 1) * sensitivity;
-
-                zoomFactor = Math.max(minZoom, Math.min(maxZoom, zoomFactor * zoomDelta));
+                const sensitivity = 0.1
+                const zoomDelta = 1 + (pinch.scale - 1) * sensitivity
+                zoomFactor = Math.max(minZoom, Math.min(maxZoom, zoomFactor * zoomDelta))
             }
-
-            onPinchFinished: {
-                pinch.scale = 1  // reset pinch scale for next gesture
-            }
+            onPinchFinished: pinch.scale = 1
         }
     }
 
@@ -202,11 +182,9 @@ ApplicationWindow {
 
     Row {
         spacing: 8
-        anchors {
-            right: parent.right
-            top: parent.top
-            margins: 12
-        }
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.margins: 12
 
         Button {
             text: "+"
@@ -217,11 +195,10 @@ ApplicationWindow {
             onClicked: zoomFactor = Math.max(minZoom, zoomFactor - zoomStep)
         }
         Label {
-            text: Math.round(zoomFactor*100)/100+ "x"
+            text: Math.round(zoomFactor * 100) / 100 + "x"
             color: "white"
         }
     }
-
 
     Button {
         id: stopRecording
@@ -229,24 +206,35 @@ ApplicationWindow {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.margins: 20
-        visible: false //Set to true if simulation recording
+        visible: false
         background: Rectangle {
-            color: Qt.rgba(255,0,0,0.5)
+            color: Qt.rgba(255, 0, 0, 0.5)
             radius: 10
         }
         onClicked: {
-            stopRecording.visible = false;
-            controller.stopServer();
-            var projectData = controller.getCSV(projectName);
-            console.log("TIMESTAMP: "+projectData.ts);
-            console.log("V_X: "+projectData.v_x);
-            console.log("V_Y: "+projectData.v_y);
-            console.log("OMEGA: "+projectData.omega);
+            stopRecording.visible = false
+            controller.stopServer()
+            var data = controller.processCSV(projectName);
         }
     }
 
-    onClosing: {
-        controller.stopServer();
-    }
+    onClosing: controller.stopServer()
 
+    Component.onCompleted: {
+        console.log("Name of Project: " + projectName)
+        console.log("Is Recording: " + simulationRecording)
+
+        robot.item.rotation=startHeading;
+
+        if (simulationRecording) {
+            stopRecording.visible = true
+            reminder.open()
+        } else {
+            projectData = controller.getCSV(projectName)
+            controller.setHeading(controller.degreesToRadians(179.9), Robot);
+
+            startHeading=controller.radiansToDegrees(controller.getHeading(Robot));
+            animationTimer.start()
+        }
+    }
 }

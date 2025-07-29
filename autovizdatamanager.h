@@ -28,7 +28,7 @@ public:
     void runPythonServer(const QString &projectName);
     void watchConfig();
     void connectToSocket(int port);
-    AutoVizDataManager::ProjectData processCSV(const QString& projectName);
+    void processCSV(const QString& projectName);
     AutoVizDataManager::ProjectData getCSV(const QString& projectName);
 
     QTcpSocket* socket;
@@ -44,5 +44,6 @@ private slots:
     void onReadyRead();
     void onConfigChanged(const QString& path);
 
-private:
+signals:
+    void projectDataReady(const AutoVizDataManager::ProjectData& data);
 };

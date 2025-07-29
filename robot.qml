@@ -9,6 +9,10 @@ Rectangle {
     border.width: 3
     radius: 10
 
+    Component.onCompleted: {
+        robotBody.rotation=90-controller.radiansToDegrees(controller.getHeading());
+    }
+
 
 
     property real m: 29.8125

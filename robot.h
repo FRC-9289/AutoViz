@@ -24,20 +24,8 @@ public:
     {}
 
     void updateHeading(double angularVelocity, double dt) {
-        qDebug() << "PREV HEADING: " << heading;
-        qDebug() << "INCREASE HEADING BY " << angularVelocity * dt;
         heading += angularVelocity * dt;
-        qDebug() << "NEW HEADING: " << heading;
         heading = normalizeAnglePI(heading);
-    }
-
-    void updatePosition(double dt) {
-        Eigen::Rotation2Dd rot(heading);
-        Eigen::Vector2d v_robot(velocityX, velocityY);
-        Eigen::Vector2d v_field = rot * v_robot;
-
-        x += v_field.x() * dt;
-        y += v_field.y() * dt;
     }
 
     void updateTime(double dt) {
@@ -70,10 +58,12 @@ public:
 
     void setHeading(double angle) { heading = angle;}
 
-    void setVelocityRelative(){
+    Eigen::Vector2d getRelativeVelocity(){
         Eigen::Rotation2D<double> rot(M_PI/2 - heading);
         Eigen::Vector2d v(velocityX, velocityY);
-        rot*v; //Work on
+        Eigen::Vector2d relativeVelocity = rot*v;
+
+        return relativeVelocity;
     }
 
 private:

@@ -162,8 +162,7 @@ void AutoVizDataManager::parseAndWriteToCSV(const QByteArray& jsonData) {
     csvStream.flush();
 }
 
-AutoVizDataManager::ProjectData AutoVizDataManager::processCSV(const QString& projectName) {
-
+void AutoVizDataManager::processCSV(const QString& projectName) {
     if (processCSVProcess) {
         processCSVProcess->disconnect();
         if (processCSVProcess->state() != QProcess::NotRunning) {
@@ -196,8 +195,8 @@ AutoVizDataManager::ProjectData AutoVizDataManager::processCSV(const QString& pr
     connect(processCSVProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, [this, projectName](int exitCode, QProcess::ExitStatus status) {
                 qDebug() << "processCSV finished with exit code:" << exitCode << " status:" << status;
-                AutoVizDataManager::ProjectData projectData = getCSV(projectName);  // run getCSV after processCSV done
-                return projectData;
+                AutoVizDataManager::ProjectData projectData = getCSV(projectName);
+                emit projectDataReady(projectData);  // Emit signal
             });
 
     processCSVProcess->start("./backendcontroller", QStringList() << "process" << projectName);

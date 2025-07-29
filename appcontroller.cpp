@@ -56,24 +56,29 @@ QStringList AppController::getProjects(){
     return jsonObj.keys();
 }
 
-QVariantMap AppController::processCSV(const QString projectName) {
-    AutoVizDataManager::ProjectData projectData = dataManager->processCSV(projectName);
+void AppController::processCSV(const QString& projectName) {
+    connect(dataManager, &AutoVizDataManager::projectDataReady, this,
+            [this](const AutoVizDataManager::ProjectData& projectData) {
 
-    QVariantMap map;
-    QVariantList vx, vy, omega, ts;
+                QVariantMap map;
+                QVariantList vx, vy, omega, ts;
 
-    for (double val : projectData.v_x) vx.append(val);
-    for (double val : projectData.v_y) vy.append(val);
-    for (double val : projectData.omega) omega.append(val);
-    for (double val : projectData.ts) ts.append(val);
+                for (double val : projectData.v_x) vx.append(val);
+                for (double val : projectData.v_y) vy.append(val);
+                for (double val : projectData.omega) omega.append(val);
+                for (double val : projectData.ts) ts.append(val);
 
-    map["v_x"] = vx;
-    map["v_y"] = vy;
-    map["omega"] = omega;
-    map["ts"] = ts;
+                map["v_x"] = vx;
+                map["v_y"] = vy;
+                map["omega"] = omega;
+                map["ts"] = ts;
 
-    return map;
+                emit this->csvProcessed(map);  // <-- create this signal and use in QML
+            });
+
+    dataManager->processCSV(projectName);
 }
+
 
 QVariantMap AppController::getCSV(const QString projectName) {
     AutoVizDataManager::ProjectData projectData = dataManager->getCSV(projectName);
@@ -94,17 +99,26 @@ QVariantMap AppController::getCSV(const QString projectName) {
     return map;
 }
 
-void AppController::updateHeading(double omega, double dt, Robot *robot) {
-    if (robot) robot->updateHeading(omega, dt);
-}
-
-double AppController::getHeading(Robot *robot) { if(robot) return robot->getHeading();}
-
-void AppController::setHeading(double angle, Robot *robot) { if(robot) robot->setHeading(angle);}
-
 void AppController::stopServer() {
     dataManager->stopServer();
 }
 
 double AppController::degreesToRadians(double angle) { return qDegreesToRadians(angle);}
 double AppController::radiansToDegrees(double angle) { return qRadiansToDegrees(angle);}
+
+void AppController::updateRobot(double v_x, double v_y, double omega, double dt, Robot *robot){
+    robot->setVelocity(v_x, v_y, omega);    // 1. Set the new robot-relative velocity
+    robot->updateHeading(omega, dt);        // 2. Update heading (based on angular velocity and duration)
+    robot->updateTime(dt);                  // 4. Update simulation time
+}
+
+double AppController::getHeading(Robot *robot) { if(robot) return robot->getHeading();}
+void AppController::setHeading(double angle, Robot *robot) {if(robot) robot->setHeading(angle);} //Radian
+
+QVariantList AppController::getRobotRelativeVelocity(Robot *robot) {
+    Eigen::Vector2d relativeVelocities = robot->getRelativeVelocity();
+    QVariantList velocity;
+    velocity.append(relativeVelocities.x()); velocity.append(relativeVelocities.y());
+
+    return velocity;
+}
