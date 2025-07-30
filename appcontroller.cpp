@@ -25,7 +25,7 @@ bool AppController::startNewProject(const QString projectName, const QString pro
         robotObj["Width"] = 1;
         robotObj["Mass"] = 50;
         robotObj["Coef"] = 1.2;
-        robotObj["module-type"] = "MK4i";
+        robotObj["module-type"] = "mk4i";
 
         // Create the outer project object
         QJsonObject projectObj;
