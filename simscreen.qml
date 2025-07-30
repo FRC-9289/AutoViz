@@ -58,7 +58,7 @@ ApplicationWindow {
 
     Timer {
         id: animationTimer
-        interval: 100
+        interval: 1
         repeat: true
         running: false
         onTriggered: {
@@ -69,11 +69,21 @@ ApplicationWindow {
 
             controller.updateRobot(projectData.v_x[frameIndex],projectData.v_y[frameIndex],projectData.omega[frameIndex],projectData.ts[frameIndex],Robot);
 
-            console.log("ANGLE: "+controller.radiansToDegrees(controller.getHeading(Robot)));
 
-            startHeading = controller.radiansToDegrees(controller.getHeading(Robot));
 
-            moveAndRotateRobot(0,0,90-startHeading,1);
+            let startHeading = controller.radiansToDegrees(controller.getHeading(Robot));
+
+            console.log("ANGLE: "+startHeading);
+
+            let scale=width / baseWidth
+
+            let vxRelative=controller.getRobotRelativeVelocity(Robot)[0]*scale;
+            let vyRelative=controller.getRobotRelativeVelocity(Robot)[1]*scale;
+
+            console.log("vxRelative: ",vxRelative,"\n",
+                        "vyRelative: ",vyRelative,"\n")
+
+            moveAndRotateRobot(vxRelative,vyRelative,90-startHeading,projectData.ts[frameIndex]);
 
             frameIndex++;
         }

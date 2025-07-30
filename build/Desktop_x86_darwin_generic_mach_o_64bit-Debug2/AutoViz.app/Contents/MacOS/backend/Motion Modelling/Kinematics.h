@@ -15,13 +15,13 @@ public:
     };
 
     struct Output {
-        double v_x;    // Linear velocity in X (forward) direction
-        double v_y;    // Linear velocity in Y (left) direction
-        double omega;  // Angular velocity in rad/s
+        double v_x;    // Linear velocity in X (forward)
+        double v_y;    // Linear velocity in Y (left)
+        double omega;  // Angular velocity (rad/s counterclockwise)
     };
 
-    Kinematics(double width, double length) : width(width), length(length) {
-        // Define module positions relative to robot center
+    Kinematics(double width, double length)
+        : width(width), length(length) {
         modulePositions["LB"] = Eigen::Vector2d(-width / 2.0, -length / 2.0);
         modulePositions["LF"] = Eigen::Vector2d(-width / 2.0,  length / 2.0);
         modulePositions["RB"] = Eigen::Vector2d( width / 2.0, -length / 2.0);
@@ -38,31 +38,28 @@ public:
             const auto& module = modules[i];
             const auto& pos = modulePositions[keys[i]];
 
-            // Decompose velocity vector
-            double vx = module.velocity * std::sin(-module.angle);
-            double vy = module.velocity * std::cos(-module.angle);
+            double vx = module.velocity * std::sin(90-module.angle);
+            double vy = module.velocity * std::cos(90-module.angle);
 
-            // Fill matrix A and vector b
+            // Row for x-component
             A(2 * i, 0) = 1;
             A(2 * i, 1) = 0;
             A(2 * i, 2) = -pos.y();
+            b(2 * i) = vx;
 
+            // Row for y-component
             A(2 * i + 1, 0) = 0;
             A(2 * i + 1, 1) = 1;
             A(2 * i + 1, 2) = pos.x();
-
-            b(2 * i) = vx;
             b(2 * i + 1) = vy;
         }
 
-        // Solve Ax = b using QR decomposition (Householder)
         Eigen::Vector3d x = A.householderQr().solve(b);
 
-        double db = 1e-15; //Deadband
-
-        if (std::abs(x(2)) < db) x(2) = 0;
-        if (std::abs(x(1)) < db) x(1) = 0;
-        if (std::abs(x(0)) < db) x(0) = 0;
+        constexpr double epsilon = 1e-12;
+        for (int i = 0; i < 3; ++i)
+            if (std::abs(x(i)) < epsilon)
+                x(i) = 0.0;
 
         return {x(0), x(1), x(2)};
     }
