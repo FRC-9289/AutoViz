@@ -37,15 +37,6 @@ public:
         for (int i = 0; i < 4; ++i) {
             const auto& module = modules[i];
             const auto& pos = modulePositions[keys[i]];
-            /*
-            LF_angle: -87.8692
-            RF_angle: 88.7355
-            LB_angle: 92.2649
-            RB_angle: -91.3441
-            */
-           if(i==0 || i==3){
-            module.angle*=-1;
-           }
 
             double vx = -module.velocity * std::sin(module.angle);
             double vy = module.velocity * std::cos(module.angle);
