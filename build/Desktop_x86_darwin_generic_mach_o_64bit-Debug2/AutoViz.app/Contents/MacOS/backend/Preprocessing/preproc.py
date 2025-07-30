@@ -4,6 +4,7 @@ import sys
 import subprocess
 import os
 import json
+from math import radians
 
 try:
     projectName = sys.argv[1]
@@ -11,8 +12,12 @@ try:
     with open("../projects.json","r") as f:
         projects = json.load(f)
         width = projects[projectName]['Robot']['Width']
-        width = projects[projectName]['Robot']['Width']
         height = projects[projectName]['Robot']['Length']
+        module_type= projects[projectName]['Robot']['module-type']
+    
+    with open("../moduledata.json", "r") as f:
+        module_data = json.load(f)
+        max_module_speed= module_data[module_type]['max_velocity_mps']
 
     df=pd.read_csv(f"../{projectName}.csv")
 except Exception as e:
@@ -51,7 +56,7 @@ def getModuleData(width: float, height: float, LB_angle, LF_angle, RB_angle, RF_
     result = subprocess.run([
         "./motionmodel",
         str(width), str(height),
-        str(LB_angle), str(LF_angle), str(RB_angle), str(RF_angle),
+        str(radians(LB_angle)), str(radians(LF_angle)), str(radians(RB_angle)), str(radians(RF_angle)),
         str(LB_velocity), str(LF_velocity), str(RB_velocity), str(RF_velocity)
     ], 
     capture_output=True, 
@@ -67,10 +72,10 @@ for i in range(len(clean_df)):
     RB_angle = clean_df.iloc[i]['RB_angle']
     RF_angle = clean_df.iloc[i]['RF_angle']
 
-    LB_velocity = clean_df.iloc[i]['LB_velocity']
-    LF_velocity = clean_df.iloc[i]['LF_velocity']
-    RB_velocity = clean_df.iloc[i]['RB_velocity']
-    RF_velocity = clean_df.iloc[i]['RF_velocity']
+    LB_velocity = clean_df.iloc[i]['LB_velocity']*max_module_speed
+    LF_velocity = clean_df.iloc[i]['LF_velocity']*max_module_speed
+    RB_velocity = clean_df.iloc[i]['RB_velocity']*max_module_speed
+    RF_velocity = clean_df.iloc[i]['RF_velocity']*max_module_speed
 
     module_data = getModuleData(width, height, LB_angle, LF_angle, RB_angle, RF_angle, LB_velocity, LF_velocity, RB_velocity, RF_velocity)
     
