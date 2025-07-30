@@ -456,7 +456,7 @@
 #define __UINT_LEAST8_MAX__ 255
 #define __UINT_LEAST8_TYPE__ unsigned char
 #define __USER_LABEL_PREFIX__ _
-#define __VERSION__ "Apple LLVM 17.0.0 (clang-1700.0.13.3)"
+#define __VERSION__ "Apple LLVM 17.0.0 (clang-1700.0.13.5)"
 #define __WCHAR_MAX__ 2147483647
 #define __WCHAR_TYPE__ int
 #define __WCHAR_WIDTH__ 32
@@ -473,7 +473,7 @@
 #define __clang_major__ 17
 #define __clang_minor__ 0
 #define __clang_patchlevel__ 0
-#define __clang_version__ "17.0.0 (clang-1700.0.13.3)"
+#define __clang_version__ "17.0.0 (clang-1700.0.13.5)"
 #define __clang_wide_literal_encoding__ "UTF-32"
 #define __cplusplus 201703L
 #define __cpp_aggregate_bases 201603L

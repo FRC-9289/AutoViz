@@ -1,6 +1,16 @@
 {
     "NT1": {
-        "Project-Directory": "/Users/adityachakraborty/Desktop/Code/Java/Robotics/2025/NetworkTablesDrivetrain",
+        "Project-Directory": "/Users/adityachakraborty/Desktop/Code/Java/Robotics/2025/NetworkTables-for-Swerve",
+        "Robot": {
+            "Coef": 1.2,
+            "Length": 1,
+            "Mass": 50,
+            "Width": 1,
+            "module-type": "MK4i"
+        }
+    },
+    "NT2": {
+        "Project-Directory": "/Users/adityachakraborty/Desktop/Code/Java/Robotics/2025/NetworkTables-for-Swerve",
         "Robot": {
             "Coef": 1.2,
             "Length": 1,

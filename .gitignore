@@ -25,6 +25,8 @@ AutoViz
 moc_*.cpp
 mocs_*.cpp
 *.pyc
+CMakeCache.txt.prev
+
 
 #Virtual Environments
 .venv

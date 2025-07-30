@@ -304,6 +304,12 @@ QT_ADDITIONAL_HOST_PACKAGES_PREFIX_PATH:STRING=
 //Additional directories where find(Qt6 ...) components are searched
 QT_ADDITIONAL_PACKAGES_PREFIX_PATH:STRING=
 
+//Use CLI mode for Qt Creator's MaintenanceTool find_package provider
+QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI:BOOL=OFF
+
+//Skip Qt Creator's MaintenanceTool find_package provider
+QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER:BOOL=OFF
+
 //Skip Qt Creator's package manager auto-setup
 QT_CREATOR_SKIP_PACKAGE_MANAGER_SETUP:BOOL=OFF
 
