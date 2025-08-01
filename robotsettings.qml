@@ -3,44 +3,58 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 ApplicationWindow {
-    width: 400
-    height: 400
-    visible: true
-    title: "Settings ⛭"
+    id: robotSettings
+    color: "#121212"
 
-    Material.theme: Material.Dark
-    Material.accent: "#39FF14"
-    ScrollView {
-        anchors.fill: parent
-        clip: true
+    width: 400;
+    height: 300;
 
-        ColumnLayout {
-            anchors.fill: parent
-
-            Label {
-                text: "Robot Settings"
-                font.pixelSize: 24
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            GridView {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                cellWidth: 160
-                cellHeight: 60
-                model: 12
-
-                delegate: Rectangle {
-                    width: 140
-                    height: 50
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Hello world " + index
-                        color: "white"
-
-                    }
-                }
-            }
+    ColumnLayout {
+        id: columnLayout
+        width: parent.width;
+        height: parent.height;
+        Label {
+            text: "Robot Settings"
+            color: "#B3E5FC";
+            font.pixelSize: 24;
+            font.weight: Font.Bold;
+            Layout.alignment: Qt.AlignCenter;
         }
+        Label {
+            text: "Module Type"
+            color: "#B3E5FC"
+            font.pixelSize: 20;
+            Layout.margins: 10;
+        }
+        ComboBox {
+            id: moduleType
+            Layout.fillWidth: true
+            model: ["MK4i", "MK4", "L2", "Custom"]
+            currentIndex: 0
+            onCurrentTextChanged: moduleType = currentText
+            palette.highlight: "#B3E5FC"
+            palette.buttonText: "white"
+            palette.text: "white"
+            palette.base: "#1E1E1E"
+            background: Rectangle {
+                color: "#1E1E1E"
+                radius: 4
+            }
+            width: 100;
+            height: 50;
+            Layout.margins: 10;
+        }
+        Label {
+            text: "Starting Heading"
+            color: "#B3E5FC"
+            font.pixelSize: 20;
+            Layout.margins: 10;
+        }
+        TextArea {
+            id: startHeading
+            Layout.margins: 10;
+        }
+
+
     }
 }

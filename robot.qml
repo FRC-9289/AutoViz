@@ -13,14 +13,20 @@ Rectangle {
         robotBody.rotation=90-controller.radiansToDegrees(controller.getHeading());
     }
 
+    property alias frontLeft: FL
+    property alias frontRight: FR
+    property alias backLeft: BL
+    property alias backRight: BR
+
 
 
     property real m: 29.8125
 
     // Front Left wheel
     Rectangle {
-        width: parent.width*0.27
-        height: parent.height*0.4
+        id: FL
+        width: parent.width*0.1
+        height: parent.height*0.3
         color: "black"
         anchors.left: parent.left
         anchors.top: parent.top
@@ -31,8 +37,9 @@ Rectangle {
 
     // Front Right wheel
     Rectangle {
-        width: parent.width*0.27
-        height: parent.height*0.4
+        id: FR
+        width: parent.width*0.1
+        height: parent.height*0.3
         color: "black"
         anchors.right: parent.right
         anchors.top: parent.top
@@ -43,8 +50,9 @@ Rectangle {
 
     // Back Left wheel
     Rectangle {
-        width: parent.width*0.27
-        height: parent.height*0.4
+        id: BL
+        width: parent.width*0.1
+        height: parent.height*0.3
         color: "black"
         anchors.left: parent.left
         anchors.bottom: parent.bottom
@@ -55,8 +63,9 @@ Rectangle {
 
     // Back Right wheel
     Rectangle {
-        width: parent.width*0.27
-        height: parent.height*0.4
+        id: BR
+        width: parent.width*0.1
+        height: parent.height*0.3
         color: "black"
         anchors.right: parent.right
         anchors.bottom: parent.bottom

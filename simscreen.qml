@@ -28,17 +28,15 @@ ApplicationWindow {
     property string projectName: ""
     property int frameIndex: 0
     property var projectData: ({})
+    property double epsilon: 1e-8;
 
     function moveAndRotateRobot(x_velocity, y_velocity, new_angle, duration) {
         let dt = duration * 1000
-        let dx = (x_velocity * spacing) * duration
-        let dy = (-y_velocity * spacing) * duration
+        let dx = (x_velocity * spacing) * duration * 2
+        let dy = (y_velocity * spacing) * duration * 2
 
         animX.to = robot.item.x + dx
-        animX.duration = dt
-
         animY.to = robot.item.y + dy
-        animY.duration = dt
 
         animRotation.to = new_angle
         animRotation.duration = dt
@@ -46,6 +44,8 @@ ApplicationWindow {
         moveRotateAnim.running = false
         moveRotateAnim.running = true
     }
+
+
 
 
 
@@ -58,7 +58,7 @@ ApplicationWindow {
 
     Timer {
         id: animationTimer
-        interval: 1
+        interval: 1000;
         repeat: true
         running: false
         onTriggered: {
@@ -77,8 +77,8 @@ ApplicationWindow {
 
             let scale=width / baseWidth
 
-            let vxRelative=controller.getRobotRelativeVelocity(Robot)[0]*scale;
-            let vyRelative=controller.getRobotRelativeVelocity(Robot)[1]*scale;
+            let vxRelative=controller.getRobotRelativeVelocity(Robot)[0];
+            let vyRelative=controller.getRobotRelativeVelocity(Robot)[1];
 
             console.log("vxRelative: ",vxRelative,"\n",
                         "vyRelative: ",vyRelative,"\n")
@@ -232,19 +232,27 @@ ApplicationWindow {
 
     Component.onCompleted: {
         console.log("Name of Project: " + projectName)
-        console.log("Is Recording: " + simulationRecording)
+        console.log("Is Recording: " + simulationRecording);
 
-        robot.item.rotation=startHeading;
+
+        /*
+        robot.item.frontLeft.rotation=45;
+        robot.item.backRight.rotation=45;
+        robot.item.frontRight.rotation=-45;
+        robot.item.backLeft.rotation=-45;
+        */
 
         if (simulationRecording) {
             stopRecording.visible = true
             reminder.open()
         } else {
             projectData = controller.getCSV(projectName)
-            controller.setHeading(controller.degreesToRadians(179.9), Robot);
+            controller.setHeading(controller.degreesToRadians(45.0), Robot);
 
             startHeading=controller.radiansToDegrees(controller.getHeading(Robot));
+            robot.item.rotation=90-startHeading;
             animationTimer.start()
         }
+
     }
 }
