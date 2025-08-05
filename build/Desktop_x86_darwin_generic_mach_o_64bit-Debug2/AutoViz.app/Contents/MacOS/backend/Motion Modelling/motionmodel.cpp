@@ -1,8 +1,12 @@
 #include "Kinematics.h"
 #include <iostream>
-#include <cmath>
+#include <vector>
 
 int main(int argc, char *argv[]) {
+    if (argc != 11) {
+        std::cerr << "Usage: ./motionmodel width length LB_angle LF_angle RB_angle RF_angle LB_vel LF_vel RB_vel RF_vel\n";
+        return 1;
+    }
 
     double width = std::stod(argv[1]);
     double length = std::stod(argv[2]);
@@ -17,15 +21,30 @@ int main(int argc, char *argv[]) {
     double RB_velocity = std::stod(argv[9]);
     double RF_velocity = std::stod(argv[10]);
 
-    Kinematics kinematics(width, length); // Width = 0.6m, Length = 0.8m
+    Kinematics kinematics(width, length);
 
     std::array<Kinematics::ModuleData, 4> modules = {
-        Kinematics::ModuleData{/*angle*/ LB_angle, /*velocity*/ LB_velocity},    // LB
-        Kinematics::ModuleData{/*angle*/ LF_angle, /*velocity*/ LF_velocity},    // LF
-        Kinematics::ModuleData{/*angle*/ RB_angle, /*velocity*/ RB_velocity},    // RB
-        Kinematics::ModuleData{/*angle*/ RF_angle, /*velocity*/ RF_velocity}     // RF
+        Kinematics::ModuleData{LB_angle, LB_velocity},
+        Kinematics::ModuleData{LF_angle, LF_velocity},
+        Kinematics::ModuleData{RB_angle, RB_velocity},
+        Kinematics::ModuleData{RF_angle, RF_velocity}
     };
 
-    Kinematics::Output output = kinematics.estimate(modules);
-    std::cout << "" << output.v_x << " " << output.v_y << " " << output.omega << std::endl;
+    double dt = 0.02;
+
+    for (int i = 0; i < 100; ++i) {
+        Eigen::Vector3d state = kinematics.estimateWithKalman(modules, dt);
+    }
+
+    Eigen::Vector2d z(2.0, 0.5);
+    Eigen::Matrix2d R;
+    R << 0.001, 0,
+         0,    0.001;
+
+    kinematics.correctPose(z, R);
+    Eigen::Vector3d corrected = kinematics.estimateWithKalman(modules, 0);
+
+    std::cout << "" << corrected(0) << " " << corrected(1) << " " << corrected(2) << std::endl;
+
+    return 0;
 }
