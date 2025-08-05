@@ -21,7 +21,7 @@ public:
     Q_INVOKABLE double degreesToRadians(double angle);
     Q_INVOKABLE double radiansToDegrees(double angle);
     Q_INVOKABLE void updateRobot(double v_x, double v_y, double omega, double dt, Robot *robot);
-    Q_INVOKABLE QVariantList getRobotRelativeVelocity(Robot *robot);
+    Q_INVOKABLE QVariantList getFieldRelativeVelocity(Robot *robot);
 
 signals:
     void csvProcessed(QVariantMap result);

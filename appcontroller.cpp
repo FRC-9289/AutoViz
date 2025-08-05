@@ -115,8 +115,8 @@ void AppController::updateRobot(double v_x, double v_y, double omega, double dt,
 double AppController::getHeading(Robot *robot) { if(robot) return robot->getHeading();}
 void AppController::setHeading(double angle, Robot *robot) {if(robot) robot->setHeading(angle);} //Radian
 
-QVariantList AppController::getRobotRelativeVelocity(Robot *robot) {
-    Eigen::Vector2d relativeVelocities = robot->getRelativeVelocity();
+QVariantList AppController::getFieldRelativeVelocity(Robot *robot) {
+    Eigen::Vector2d relativeVelocities = robot->getFieldRelativeVelocity();
     QVariantList velocity;
     velocity.append(relativeVelocities.x()); velocity.append(relativeVelocities.y());
 
