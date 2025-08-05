@@ -26,6 +26,8 @@ moc_*.cpp
 mocs_*.cpp
 *.pyc
 CMakeCache.txt.prev
+*.json
+*.json
 
 
 #Virtual Environments
