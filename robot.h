@@ -58,8 +58,8 @@ public:
 
     void setHeading(double angle) { heading = angle;}
 
-    Eigen::Vector2d getRelativeVelocity(){
-        Eigen::Rotation2D<double> rot(M_PI/2 - heading);
+    Eigen::Vector2d getFieldRelativeVelocity(){
+        Eigen::Rotation2D<double> rot(-heading);
         Eigen::Vector2d v(velocityX, velocityY);
         Eigen::Vector2d relativeVelocity = rot*v;
 
