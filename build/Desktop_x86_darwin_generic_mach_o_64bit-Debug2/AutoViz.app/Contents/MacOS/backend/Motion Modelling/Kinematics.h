@@ -6,6 +6,7 @@
 #include <cmath>
 #include <string>
 #include <map>
+#include "KalmanFilter.h"
 
 class Kinematics {
 public:
@@ -54,7 +55,7 @@ public:
             b(2 * i + 1) = vy;
         }
 
-        Eigen::Vector3d x = A.householderQr().solve(b);
+        Eigen::Vector3d x = A.colPivHouseholderQr().solve(b);
 
         constexpr double epsilon = 1e-12;
         for (int i = 0; i < 3; ++i)
@@ -64,9 +65,23 @@ public:
         return {x(0), x(1), x(2)};
     }
 
+    Eigen::Vector3d estimateWithKalman(const std::array<ModuleData, 4>& modules, double dt) {
+        Output output = estimate(modules);
+        Eigen::Vector3d u(output.v_x, output.v_y, output.omega);
+        estimator.predict(u, dt);
+        return estimator.getState();
+    }
+
+    void correctPose(const Eigen::Vector2d& z, const Eigen::Matrix2d& R) {
+        estimator.correct(z, R);
+    }
+
+
 private:
     double width;
     double length;
+    KalmanPoseEstimator estimator;
+
     std::map<std::string, Eigen::Vector2d> modulePositions;
 };
 
