@@ -31,7 +31,6 @@ ApplicationWindow {
             Layout.fillWidth: true
             model: ["MK4i", "MK4", "L2", "Custom"]
             currentIndex: 0
-            onCurrentTextChanged: moduleType = currentText
             palette.highlight: "#B3E5FC"
             palette.buttonText: "white"
             palette.text: "white"

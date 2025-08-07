@@ -29,61 +29,120 @@ ApplicationWindow {
     property int frameIndex: 0
     property var projectData: ({})
     property double epsilon: 1e-8;
+    property double startX: 6.5;
+    property double startY: 4.0;
+    property double errorLambda: 0.6;
 
     function moveAndRotateRobot(x_velocity, y_velocity, new_angle, duration) {
-        let dt = duration * 1000
-        let dx = (x_velocity * spacing) * duration * 2
-        let dy = (y_velocity * spacing) * duration * 2
+        let dt = duration * 1000;
+        let dx = (x_velocity * spacing*2.0) * duration;
+        let dy = (y_velocity * spacing*2.0) * duration;
 
-        animX.to = robot.item.x + dx
-        animY.to = robot.item.y + dy
+        moveRotateAnim.animations[0].to = robot.item.x - dx;
+        moveRotateAnim.animations[0].duration = dt;
 
-        animRotation.to = new_angle
-        animRotation.duration = dt
+        moveRotateAnim.animations[1].to = robot.item.y - dy;
+        moveRotateAnim.animations[1].duration = dt;
 
-        moveRotateAnim.running = false
-        moveRotateAnim.running = true
+        moveRotateAnim.animations[2].to = new_angle;
+        moveRotateAnim.animations[2].duration = dt;
+
+        moveRotateAnim.running = false;
+        moveRotateAnim.running = true;
+    }
+    function headingError(true_heading, heading){
+        let diff = (true_heading - heading + 180) % 360 - 180;
+        return diff * diff;
+    }
+    function distanceError(true_x, true_y, pred_x, pred_y){
+        let dist = Math.sqrt(
+                    Math.pow(true_x-pred_x,2)+
+                    Math.pow(true_y-pred_y,2)
+                    );
+        return Math.pow(dist,2);
     }
 
+
+    menuBar: MenuBar {
+        Menu {
+            title: "AutoViz"
+
+            MenuItem {
+                text: "Pref"
+                onTriggered: {
+                    settings.visible=true;
+                }
+            }
+            MenuItem {
+                text: "Open"
+                onTriggered: console.log("Open clicked")
+            }
+            MenuItem {
+                text: "Save"
+                onTriggered: console.log("Save clicked")
+            }
+        }
+    }
 
 
 
 
     Connections {
         target: controller
-        onCsvProcessed: (result) => {
-                            projectData=result;
+        function onCsvProcessed(result){
+            projectData=result;
+            console.log(result);
                         }
     }
 
     Timer {
         id: animationTimer
-        interval: 1000;
+        interval: projectData.ts[frameIndex]*1000;
         repeat: true
         running: false
-        onTriggered: {
-            if (frameIndex >= projectData.ts.length) {
+        onTriggered: { //Update timer
+            if (frameIndex  == projectData.ts.length-1) { //Stop @ second last index
                 stop()
                 return
             }
 
-            controller.updateRobot(projectData.v_x[frameIndex],projectData.v_y[frameIndex],projectData.omega[frameIndex],projectData.ts[frameIndex],Robot);
+            controller.updateRobot(projectData.v_x[frameIndex],projectData.v_y[frameIndex],projectData.omega[frameIndex],projectData.ts[frameIndex],Robot); //Update Robot State
 
 
 
-            let startHeading = controller.radiansToDegrees(controller.getHeading(Robot));
+            let startHeading = controller.radiansToDegrees(controller.getHeading(Robot)); //Updaate
 
             console.log("ANGLE: "+startHeading);
 
-            let scale=width / baseWidth
+            let vxRelative=controller.getFieldRelativeVelocity(Robot)[0];
+            let vyRelative=controller.getFieldRelativeVelocity(Robot)[1];
+            let duration = projectData.ts[frameIndex];
 
-            let vxRelative=controller.getRobotRelativeVelocity(Robot)[0];
-            let vyRelative=controller.getRobotRelativeVelocity(Robot)[1];
+            let dt = duration * 1000;
+            let dx = (vxRelative * spacing*2.0) * duration;
+            let dy = (vyRelative * spacing*2.0) * duration;
 
-            console.log("vxRelative: ",vxRelative,"\n",
-                        "vyRelative: ",vyRelative,"\n")
+            moveRotateAnim.animations[0].to = robot.item.x + dx;
+            moveRotateAnim.animations[0].duration = dt;
 
-            moveAndRotateRobot(vxRelative,vyRelative,90-startHeading,projectData.ts[frameIndex]);
+            moveRotateAnim.animations[1].to = robot.item.y + dy;
+            moveRotateAnim.animations[1].duration = dt;
+
+            moveRotateAnim.animations[2].to = startHeading;
+            moveRotateAnim.animations[2].duration = dt;
+
+            moveRotateAnim.running = false;
+            moveRotateAnim.running = true;
+
+            let dErr = distanceError(3, 7, startX, startY);
+            let hErr = headingError(180, startHeading);
+            let loss = errorLambda * dErr + (1-errorLambda) * hErr;
+
+            console.log("DX: ",dx,"\n",
+                  "DY: ",dy, "\n",
+                  "TS: ",dt, "\n",
+                  "Heading: ",startHeading);
+
 
             frameIndex++;
         }
@@ -113,16 +172,23 @@ ApplicationWindow {
 
         Loader {
             id: robot
-            source: "robot.qml"
+            source: "qrc:/QML/robot.qml"
             anchors.centerIn: parent
+        }
+        Loader {
+            id: settings
+            source: "qrc:/QML/robotsettings.qml"
+            visible: false
         }
 
         ParallelAnimation {
             id: moveRotateAnim
-            NumberAnimation { id: animX; target: robot.item; property: "x"; duration: 0 }
-            NumberAnimation { id: animY; target: robot.item; property: "y"; duration: 0 }
-            NumberAnimation { id: animRotation; target: robot.item; property: "rotation"; duration: 0 }
+            running: false
+            NumberAnimation { target: robot.item; property: "x"; to: 0; duration: 1000; easing.type: Easing.InOutQuad }
+            NumberAnimation { target: robot.item; property: "y"; to: 0; duration: 1000; easing.type: Easing.InOutQuad }
+            NumberAnimation { target: robot.item; property: "rotation"; to: 0; duration: 1000; easing.type: Easing.InOutQuad }
         }
+
 
         function updateRobotSize() {
             if (robot.item) {
