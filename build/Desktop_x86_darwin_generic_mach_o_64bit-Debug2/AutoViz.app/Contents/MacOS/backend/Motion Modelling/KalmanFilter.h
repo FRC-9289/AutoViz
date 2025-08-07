@@ -11,9 +11,9 @@ public:
     KalmanPoseEstimator() {
         state.setZero();
         P.setIdentity();
-        Q << 0.001, 0,    0,
-             0,    0.001, 0,
-             0,    0,    0.001;
+        Q << 0, 0,    0,
+             0,    0, 0,
+             0,    0,    0;
     }
 
     void predict(const Eigen::Vector3d& u, double dt) {
