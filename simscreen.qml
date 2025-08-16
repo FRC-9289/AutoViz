@@ -35,8 +35,8 @@ ApplicationWindow {
 
     function moveAndRotateRobot(x_velocity, y_velocity, new_angle, duration) {
         let dt = duration * 1000;
-        let dx = (x_velocity * spacing*2.0) * duration;
-        let dy = (y_velocity * spacing*2.0) * duration;
+        let dx = (x_velocity * spacing) * duration;
+        let dy = (y_velocity * spacing) * duration;
 
         moveRotateAnim.animations[0].to = robot.item.x - dx;
         moveRotateAnim.animations[0].duration = dt;
@@ -44,7 +44,7 @@ ApplicationWindow {
         moveRotateAnim.animations[1].to = robot.item.y - dy;
         moveRotateAnim.animations[1].duration = dt;
 
-        moveRotateAnim.animations[2].to = new_angle;
+        moveRotateAnim.animations[2].to = 90-new_angle;
         moveRotateAnim.animations[2].duration = dt;
 
         moveRotateAnim.running = false;
@@ -52,14 +52,14 @@ ApplicationWindow {
     }
     function headingError(true_heading, heading){
         let diff = (true_heading - heading + 180) % 360 - 180;
-        return diff * diff;
+        return diff;
     }
     function distanceError(true_x, true_y, pred_x, pred_y){
         let dist = Math.sqrt(
                     Math.pow(true_x-pred_x,2)+
                     Math.pow(true_y-pred_y,2)
                     );
-        return Math.pow(dist,2);
+        return dist
     }
 
 
@@ -118,30 +118,13 @@ ApplicationWindow {
             let vyRelative=controller.getFieldRelativeVelocity(Robot)[1];
             let duration = projectData.ts[frameIndex];
 
-            let dt = duration * 1000;
-            let dx = (vxRelative * spacing*2.0) * duration;
-            let dy = (vyRelative * spacing*2.0) * duration;
+            startX+=vxRelative*duration
+            startY+=vyRelative*duration
 
-            moveRotateAnim.animations[0].to = robot.item.x + dx;
-            moveRotateAnim.animations[0].duration = dt;
+            console.log("Heading error: "+headingError(180,startHeading));
+            console.log("Distance error: "+distanceError(3,7,startX,startY));
 
-            moveRotateAnim.animations[1].to = robot.item.y + dy;
-            moveRotateAnim.animations[1].duration = dt;
-
-            moveRotateAnim.animations[2].to = startHeading;
-            moveRotateAnim.animations[2].duration = dt;
-
-            moveRotateAnim.running = false;
-            moveRotateAnim.running = true;
-
-            let dErr = distanceError(3, 7, startX, startY);
-            let hErr = headingError(180, startHeading);
-            let loss = errorLambda * dErr + (1-errorLambda) * hErr;
-
-            console.log("DX: ",dx,"\n",
-                  "DY: ",dy, "\n",
-                  "TS: ",dt, "\n",
-                  "Heading: ",startHeading);
+            moveAndRotateRobot(vxRelative,vyRelative,startHeading,duration);
 
 
             frameIndex++;

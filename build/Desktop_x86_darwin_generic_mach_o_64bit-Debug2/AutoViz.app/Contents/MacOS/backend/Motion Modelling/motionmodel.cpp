@@ -30,21 +30,9 @@ int main(int argc, char *argv[]) {
         Kinematics::ModuleData{RF_angle, RF_velocity}
     };
 
-    double dt = 0.02;
+    Kinematics::Output output = kinematics.estimate(modules);
 
-    for (int i = 0; i < 100; ++i) {
-        Eigen::Vector3d state = kinematics.estimateWithKalman(modules, dt);
-    }
-
-    Eigen::Vector2d z(2.0, 0.5);
-    Eigen::Matrix2d R;
-    R << 0.001, 0,
-         0,    0.001;
-
-    kinematics.correctPose(z, R);
-    Eigen::Vector3d corrected = kinematics.estimateWithKalman(modules, 0);
-
-    std::cout << "" << corrected(0) << " " << corrected(1) << " " << corrected(2) << std::endl;
+    std::cout << output.v_x << " " << output.v_y << " " << output.omega;
 
     return 0;
 }

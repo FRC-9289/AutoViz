@@ -61,7 +61,7 @@ static constexpr auto qt_meta_stringdata_ZN13AppControllerE = QtMocHelpers::stri
     "v_y",
     "omega",
     "dt",
-    "getRobotRelativeVelocity",
+    "getFieldRelativeVelocity",
     "QVariantList"
 );
 #else  // !QT_MOC_HAS_STRINGDATA
@@ -162,7 +162,7 @@ Q_CONSTINIT const QMetaObject AppController::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<double, std::false_type>,
         QtPrivate::TypeAndForceComplete<double, std::false_type>,
         QtPrivate::TypeAndForceComplete<Robot *, std::false_type>,
-        // method 'getRobotRelativeVelocity'
+        // method 'getFieldRelativeVelocity'
         QtPrivate::TypeAndForceComplete<QVariantList, std::false_type>,
         QtPrivate::TypeAndForceComplete<Robot *, std::false_type>
     >,
@@ -191,7 +191,7 @@ void AppController::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
         case 9: { double _r = _t->radiansToDegrees((*reinterpret_cast< std::add_pointer_t<double>>(_a[1])));
             if (_a[0]) *reinterpret_cast< double*>(_a[0]) = std::move(_r); }  break;
         case 10: _t->updateRobot((*reinterpret_cast< std::add_pointer_t<double>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[3])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[4])),(*reinterpret_cast< std::add_pointer_t<Robot*>>(_a[5]))); break;
-        case 11: { QVariantList _r = _t->getRobotRelativeVelocity((*reinterpret_cast< std::add_pointer_t<Robot*>>(_a[1])));
+        case 11: { QVariantList _r = _t->getFieldRelativeVelocity((*reinterpret_cast< std::add_pointer_t<Robot*>>(_a[1])));
             if (_a[0]) *reinterpret_cast< QVariantList*>(_a[0]) = std::move(_r); }  break;
         default: ;
         }
