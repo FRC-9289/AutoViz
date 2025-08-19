@@ -10,7 +10,7 @@
         <file>app-logo.png</file>
     </qresource>
     <qresource prefix="/SimScreen">
-        <file>reefscape.png</file>
+        <file>2025 REEFSCAPE Transparent Background.png</file>
     </qresource>
     <qresource prefix="/">
         <file>settings.qml</file>
