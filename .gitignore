@@ -31,8 +31,8 @@ CMakeCache.txt.prev
 
 
 #Virtual Environments
-.venv
-venv
+/.venv/
+/venv/
 .DS_Store
 Makefile2
 Makefile
